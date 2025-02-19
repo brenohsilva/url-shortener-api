@@ -12,3 +12,26 @@ datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
 }
+
+model Users {
+  id        String         @id @default(uuid())
+  name      String
+  email     String         @unique
+  password  String
+  created_at DateTime       @default(now())
+  updated_at DateTime       @updatedAt
+  urls      Shortened_urls[]
+}
+
+model Shortened_urls {
+  id        String    @id @default(uuid())
+  users_id    String
+  short_code String    @unique
+  origin_url String
+  clicks    Int       @default(0)
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+  deleted_at DateTime?
+
+  user Users @relation(fields: [users_id], references: [id], onDelete: Cascade)
+}
