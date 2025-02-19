@@ -31,6 +31,14 @@ export class ShortenedUrlsService {
     });
   }
 
+  async findByShortCode(shortCode: string) {
+    return await this.prisma.shortened_urls.findUnique({
+      where: {
+        short_code: shortCode,
+      },
+    });
+  }
+
   async update(id: string, updateShortenedUrlDto: UpdateShortenedUrlDto) {
     return await this.prisma.shortened_urls.update({
       where: {
@@ -42,13 +50,15 @@ export class ShortenedUrlsService {
     });
   }
 
-  async updateClicks(id: string, updateShortenedUrlDto: UpdateShortenedUrlDto) {
+  async updateClicks(id: string) {
     return await this.prisma.shortened_urls.update({
       where: {
         id,
       },
       data: {
-        clicks: updateShortenedUrlDto.clicks,
+        clicks: {
+          increment: 1,
+        },
       },
     });
   }
