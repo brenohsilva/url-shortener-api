@@ -29,14 +29,21 @@ export class CreateShortenedUrlUseCase {
         userId = user?.sub || null;
       }
 
+      const shortUrl = `http://localhost:3000/${shortCode}`;
+
       const newData: CreateShortenedUrlDto = userId
-        ? { users_id: userId, original_url: url, short_code: shortCode }
-        : { original_url: url, short_code: shortCode };
+        ? {
+            users_id: userId,
+            original_url: url,
+            short_code: shortCode,
+            shorten_url: shortUrl,
+          }
+        : { original_url: url, short_code: shortCode, shorten_url: shortUrl };
 
       const response = await this.shortenedUrlService.create(newData);
 
       if (response) {
-        return { shortUrl: `https://localhost:3000/${shortCode}` };
+        return { shortUrl: shortUrl };
       }
     } catch (error) {
       console.error(error);
