@@ -12,6 +12,8 @@ import { UpdateShortenedUrlDto } from './dto/update-shortened_url.dto';
 import { CreateShortenedUrlUseCase } from './usecases/create-shortened-url.usecase';
 import { DeleteShortenedUrlUseCase } from './usecases/delete-shortened-url.usecase';
 import { ShortenedUrlBodyDto } from './dto/create-shortened_url.dto';
+import { FindAllShortenedUrlsUseCase } from './usecases/find-all-shortened-urls.usecase';
+import { FindOneShortenedUrlsUseCase } from './usecases/find-one-shortened-url-usecase';
 
 @Controller('shortened-urls')
 export class ShortenedUrlsController {
@@ -19,6 +21,8 @@ export class ShortenedUrlsController {
     private readonly shortenedUrlsService: ShortenedUrlsService,
     private readonly createShortenedUrlUseCase: CreateShortenedUrlUseCase,
     private readonly deleteShortenedUrlUseCase: DeleteShortenedUrlUseCase,
+    private readonly findShortenedUrlUseCase: FindAllShortenedUrlsUseCase,
+    private readonly findOneShortenedUrlUseCase: FindOneShortenedUrlsUseCase,
   ) {}
 
   @Post()
@@ -28,12 +32,12 @@ export class ShortenedUrlsController {
 
   @Get()
   findAll() {
-    return this.shortenedUrlsService.findAll();
+    return this.findShortenedUrlUseCase.execute();
   }
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.shortenedUrlsService.findOne(id);
+    return this.findOneShortenedUrlUseCase.execute(id);
   }
 
   @Patch(':id')
