@@ -1,3 +1,5 @@
+import * as crypto from 'crypto';
+
 export function generateUniqueCode(): string {
   const uuid = crypto.randomUUID().replace(/-/g, '');
   const base62 = Buffer.from(uuid, 'hex')
