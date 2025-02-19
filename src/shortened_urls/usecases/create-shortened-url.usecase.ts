@@ -1,14 +1,15 @@
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { ShortenedUrlsService } from '../shortened_urls.service';
 import { generateUniqueCode } from 'src/utils/generate-unique-code';
-import { CreateShortenedUrlDto } from '../dto/create-shortened_url.dto';
+import {
+  CreateShortenedUrlDto,
+  ShortenedUrlBodyDto,
+} from '../dto/create-shortened_url.dto';
 
 @Injectable()
 export class CreateShortenedUrlUseCase {
   constructor(private readonly shortendUrlService: ShortenedUrlsService) {}
-  async execute(data: any, request?: Request) {
+  async execute(data: ShortenedUrlBodyDto, request?: Request) {
     try {
       const url = data.url;
       const shortCode = generateUniqueCode();

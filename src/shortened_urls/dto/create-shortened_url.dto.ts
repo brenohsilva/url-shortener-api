@@ -3,3 +3,7 @@ export class CreateShortenedUrlDto {
   short_code: string;
   original_url: string;
 }
+
+export class ShortenedUrlBodyDto {
+  url: string
+}
