@@ -12,18 +12,20 @@ export class ShortenedUrlsService {
     });
   }
 
-  async findAll() {
+  async findAll(users_id: string) {
     return await this.prisma.shortened_urls.findMany({
       where: {
+        users_id,
         deleted_at: null,
       },
     });
   }
 
-  async findOne(id: string) {
+  async findOne(id: string, users_id: string) {
     return await this.prisma.shortened_urls.findUnique({
       where: {
         id,
+        users_id,
         deleted_at: null,
       },
     });

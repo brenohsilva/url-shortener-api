@@ -7,6 +7,7 @@ import {
   Param,
   Delete,
   Req,
+  UseGuards,
 } from '@nestjs/common';
 import { ShortenedUrlsService } from './shortened_urls.service';
 import { UpdateShortenedUrlDto } from './dto/update-shortened_url.dto';
@@ -15,6 +16,7 @@ import { DeleteShortenedUrlUseCase } from './usecases/delete-shortened-url.useca
 import { ShortenedUrlBodyDto } from './dto/create-shortened_url.dto';
 import { FindAllShortenedUrlsUseCase } from './usecases/find-all-shortened-urls.usecase';
 import { FindOneShortenedUrlsUseCase } from './usecases/find-one-shortened-url-usecase';
+import { AuthGuard } from 'src/auth/auth.guard';
 
 @Controller('shortened-urls')
 export class ShortenedUrlsController {
@@ -31,16 +33,19 @@ export class ShortenedUrlsController {
     return this.createShortenedUrlUseCase.execute(data, request);
   }
 
+  @UseGuards(AuthGuard)
   @Get()
-  findAll() {
-    return this.findShortenedUrlUseCase.execute();
+  findAll(@Req() request: Request) {
+    return this.findShortenedUrlUseCase.execute(request);
   }
 
+  @UseGuards(AuthGuard)
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.findOneShortenedUrlUseCase.execute(id);
+  findOne(@Param('id') id: string, @Req() request: Request) {
+    return this.findOneShortenedUrlUseCase.execute(id, request);
   }
 
+  @UseGuards(AuthGuard)
   @Patch(':id')
   update(
     @Param('id') id: string,
@@ -49,8 +54,9 @@ export class ShortenedUrlsController {
     return this.shortenedUrlsService.update(id, updateShortenedUrlDto);
   }
 
+  @UseGuards(AuthGuard)
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.deleteShortenedUrlUseCase.execute(id);
+  remove(@Param('id') id: string, @Req() request: Request) {
+    return this.deleteShortenedUrlUseCase.execute(id, request);
   }
 }
