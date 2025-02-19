@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { ShortenedUrlsService } from '../shortened_urls.service';
 import { generateUniqueCode } from 'src/utils/generate-unique-code';
@@ -5,25 +7,36 @@ import {
   CreateShortenedUrlDto,
   ShortenedUrlBodyDto,
 } from '../dto/create-shortened_url.dto';
+import { JwtService } from '@nestjs/jwt';
+import { JwtToken } from 'src/utils/token';
 
 @Injectable()
 export class CreateShortenedUrlUseCase {
-  constructor(private readonly shortendUrlService: ShortenedUrlsService) {}
-  async execute(data: ShortenedUrlBodyDto, request?: Request) {
+  constructor(
+    private readonly shortenedUrlService: ShortenedUrlsService,
+    private readonly jwtService: JwtService,
+  ) {}
+  async execute(data: ShortenedUrlBodyDto, request: Request) {
     try {
-      const url = data.url;
+      const { url } = data;
       const shortCode = generateUniqueCode();
 
-      if (!request) {
-        const data: CreateShortenedUrlDto = {
-          original_url: url,
-          short_code: shortCode,
-        };
+      let userId: string | null = null;
+      const authorizationHeader = request.headers['authorization'];
+      if (authorizationHeader) {
+        const accessToken = JwtToken(String(authorizationHeader));
+        const user = await this.jwtService.decode(accessToken.trim());
+        userId = user?.sub || null;
+      }
 
-        const response = await this.shortendUrlService.create(data);
-        if (response) {
-          return { shortUrl: `https://localhost:3000/${shortCode}` };
-        }
+      const newData: CreateShortenedUrlDto = userId
+        ? { users_id: userId, original_url: url, short_code: shortCode }
+        : { original_url: url, short_code: shortCode };
+
+      const response = await this.shortenedUrlService.create(newData);
+
+      if (response) {
+        return { shortUrl: `https://localhost:3000/${shortCode}` };
       }
     } catch (error) {
       console.error(error);

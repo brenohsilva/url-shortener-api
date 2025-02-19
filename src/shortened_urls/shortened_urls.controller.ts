@@ -6,6 +6,7 @@ import {
   Patch,
   Param,
   Delete,
+  Req,
 } from '@nestjs/common';
 import { ShortenedUrlsService } from './shortened_urls.service';
 import { UpdateShortenedUrlDto } from './dto/update-shortened_url.dto';
@@ -26,8 +27,8 @@ export class ShortenedUrlsController {
   ) {}
 
   @Post()
-  create(@Body() data: ShortenedUrlBodyDto) {
-    return this.createShortenedUrlUseCase.execute(data);
+  create(@Body() data: ShortenedUrlBodyDto, @Req() request: Request) {
+    return this.createShortenedUrlUseCase.execute(data, request);
   }
 
   @Get()
