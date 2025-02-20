@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { ShortenedUrlsService } from '../shortened_urls.service';
-import { JwtToken } from 'src/utils/token';
+import { JwtToken } from '../../utils/token';
 import { JwtService } from '@nestjs/jwt';
 import { UserDto } from 'src/users/dto/user.dto';
 
