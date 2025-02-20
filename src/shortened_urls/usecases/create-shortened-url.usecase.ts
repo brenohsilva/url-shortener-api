@@ -1,6 +1,5 @@
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { ShortenedUrlsService } from '../shortened_urls.service';
 import { generateUniqueCode } from 'src/utils/generate-unique-code';
 import {
@@ -9,6 +8,7 @@ import {
 } from '../dto/create-shortened_url.dto';
 import { JwtService } from '@nestjs/jwt';
 import { JwtToken } from 'src/utils/token';
+import { UserDto } from 'src/users/dto/user.dto';
 
 @Injectable()
 export class CreateShortenedUrlUseCase {
@@ -16,20 +16,23 @@ export class CreateShortenedUrlUseCase {
     private readonly shortenedUrlService: ShortenedUrlsService,
     private readonly jwtService: JwtService,
   ) {}
+
+  private readonly logger = new Logger(CreateShortenedUrlUseCase.name);
+
   async execute(data: ShortenedUrlBodyDto, request: Request) {
     try {
       const { url } = data;
       const shortCode = generateUniqueCode();
-
       let userId: string | null = null;
       const authorizationHeader = request.headers['authorization'];
       if (authorizationHeader) {
         const accessToken = JwtToken(String(authorizationHeader));
-        const user = await this.jwtService.decode(accessToken.trim());
+        const user: UserDto = await this.jwtService.decode(accessToken.trim());
         userId = user?.sub || null;
       }
+      const baseUrl = process.env.BASE_URL || 'http://localhost:3000';
 
-      const shortUrl = `http://localhost:3000/${shortCode}`;
+      const shortUrl = `${baseUrl}/${shortCode}`;
 
       const newData: CreateShortenedUrlDto = userId
         ? {
@@ -46,7 +49,7 @@ export class CreateShortenedUrlUseCase {
         return { shortUrl: shortUrl };
       }
     } catch (error) {
-      console.error(error);
+      this.logger.error(error);
       throw new HttpException(
         'Erro ao gerar a url. Tente novamente mais tarde.',
         HttpStatus.INTERNAL_SERVER_ERROR,

@@ -1,11 +1,10 @@
-/* eslint-disable @typescript-eslint/no-unsafe-argument */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { JwtToken } from 'src/utils/token';
 import { ShortenedUrlsService } from '../shortened_urls.service';
 import { UpdateShortenedUrlDto } from '../dto/update-shortened_url.dto';
+import { UserDto } from 'src/users/dto/user.dto';
 
 @Injectable()
 export class UpdateShortenedUrlUseCase {
@@ -13,6 +12,8 @@ export class UpdateShortenedUrlUseCase {
     private readonly shortendUrlService: ShortenedUrlsService,
     private readonly jwtService: JwtService,
   ) {}
+  private readonly logger = new Logger(UpdateShortenedUrlUseCase.name);
+
   async execute(id: string, request: Request, data: UpdateShortenedUrlDto) {
     try {
       const authorizationHeader = request.headers['authorization'];
@@ -24,8 +25,8 @@ export class UpdateShortenedUrlUseCase {
         );
       }
 
-      const accessToken = JwtToken(authorizationHeader);
-      const user = await this.jwtService.decode(accessToken.trim());
+      const accessToken = JwtToken(String(authorizationHeader));
+      const user: UserDto = await this.jwtService.decode(accessToken.trim());
       const userId: string = user.sub;
       const url = await this.shortendUrlService.findOne(id, userId);
       if (!url) {
@@ -41,7 +42,7 @@ export class UpdateShortenedUrlUseCase {
         data: 'Url atualizada com sucesso',
       };
     } catch (error) {
-      console.error(error);
+      this.logger.error(error);
       throw new HttpException(
         'Erro ao atualizar a url. Tente novamente mais tarde.',
         HttpStatus.INTERNAL_SERVER_ERROR,

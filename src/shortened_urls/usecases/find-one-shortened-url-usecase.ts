@@ -1,11 +1,9 @@
-/* eslint-disable @typescript-eslint/no-unsafe-argument */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { ShortenedUrlsService } from '../shortened_urls.service';
 import { JwtService } from '@nestjs/jwt';
 import { JwtToken } from 'src/utils/token';
+import { UserDto } from 'src/users/dto/user.dto';
 
 @Injectable()
 export class FindOneShortenedUrlsUseCase {
@@ -13,26 +11,27 @@ export class FindOneShortenedUrlsUseCase {
     private readonly shortendUrlService: ShortenedUrlsService,
     private readonly jwtService: JwtService,
   ) {}
+  private readonly logger = new Logger(FindOneShortenedUrlsUseCase.name);
   async execute(id: string, request: Request) {
     try {
       const authorizationHeader = request.headers['authorization'];
 
       if (!authorizationHeader) {
         throw new HttpException(
-          'Erro ao gerar a url. Tente novamente mais tarde.',
+          'Erro ao buscar a url. Tente novamente mais tarde.',
           HttpStatus.INTERNAL_SERVER_ERROR,
         );
       }
 
-      const accessToken = JwtToken(authorizationHeader);
-      const user = await this.jwtService.decode(accessToken.trim());
+      const accessToken = JwtToken(String(authorizationHeader));
+      const user: UserDto = await this.jwtService.decode(accessToken.trim());
       const userId: string = user.sub;
       const url = await this.shortendUrlService.findOne(id, userId);
 
       if (!url) {
         return {
           success: true,
-          data: 'Nenhuma url encontrada',
+          data: 'url não encontrada',
         };
       }
       return {
@@ -40,9 +39,9 @@ export class FindOneShortenedUrlsUseCase {
         data: url,
       };
     } catch (error) {
-      console.error(error);
+      this.logger.error(error);
       throw new HttpException(
-        'Erro ao gerar a url. Tente novamente mais tarde.',
+        'Erro ao buscar a url. Tente novamente mais tarde.',
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }

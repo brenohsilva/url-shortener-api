@@ -2,6 +2,7 @@ import {
   HttpException,
   HttpStatus,
   Injectable,
+  Logger,
   NotFoundException,
 } from '@nestjs/common';
 import { ShortenedUrlsService } from '../shortened_urls.service';
@@ -10,6 +11,7 @@ import { ensureUrlHasProtocol } from 'src/utils/ensured-has-protocol';
 @Injectable()
 export class RedirectShortenedUrlUseCase {
   constructor(private readonly shortendUrlService: ShortenedUrlsService) {}
+  private readonly logger = new Logger(RedirectShortenedUrlUseCase.name);
   async execute(shortCode: string, res: Response) {
     try {
       const url = await this.shortendUrlService.findByShortCode(shortCode);
@@ -20,9 +22,9 @@ export class RedirectShortenedUrlUseCase {
       await this.shortendUrlService.updateClicks(url.id);
       return res.redirect(originalUrl);
     } catch (error) {
-      console.log(error);
+      this.logger.error(error);
       throw new HttpException(
-        'Erro ao gerar a url. Tente novamente mais tarde.',
+        'Erro ao redirecionar a url. Tente novamente mais tarde.',
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
