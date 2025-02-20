@@ -1,10 +1,11 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { UsersService } from '../users.service';
 
 @Injectable()
 export class RemoveUserUseCase {
   constructor(private readonly usersService: UsersService) {}
+  private readonly logger = new Logger(RemoveUserUseCase.name);
   async execute(id: string) {
     try {
       const response = await this.usersService.findOne(id);
@@ -22,9 +23,9 @@ export class RemoveUserUseCase {
         data: 'Usuário removido com sucesso',
       };
     } catch (error) {
-      console.error(error);
+      this.logger.error(error);
       throw new HttpException(
-        'Erro ao atualzar o usuário. Tente novamente mais tarde.',
+        'Erro ao remover o usuário. Tente novamente mais tarde.',
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }

@@ -1,10 +1,11 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { UsersService } from '../users.service';
 
 @Injectable()
 export class FindAllUsersUseCase {
   constructor(private readonly usersService: UsersService) {}
+  private readonly logger = new Logger(FindAllUsersUseCase.name);
+
   async execute() {
     try {
       const response = await this.usersService.findAll();
@@ -15,7 +16,7 @@ export class FindAllUsersUseCase {
         };
       }
     } catch (error) {
-      console.error(error);
+      this.logger.error(error);
       throw new HttpException(
         'Erro ao trazer os usuários. Tente novamente mais tarde.',
         HttpStatus.INTERNAL_SERVER_ERROR,
