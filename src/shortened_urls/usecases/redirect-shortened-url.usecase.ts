@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common';
 import { ShortenedUrlsService } from '../shortened_urls.service';
 import { Response } from 'express';
-import { ensureUrlHasProtocol } from 'src/utils/ensured-has-protocol';
+import { ensureUrlHasProtocol } from '../../utils/ensured-has-protocol';
 @Injectable()
 export class RedirectShortenedUrlUseCase {
   constructor(private readonly shortendUrlService: ShortenedUrlsService) {}
