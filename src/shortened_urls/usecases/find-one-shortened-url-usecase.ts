@@ -2,7 +2,7 @@
 import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { ShortenedUrlsService } from '../shortened_urls.service';
 import { JwtService } from '@nestjs/jwt';
-import { JwtToken } from 'src/utils/token';
+import { JwtToken } from '../../utils/token';
 import { UserDto } from 'src/users/dto/user.dto';
 
 @Injectable()

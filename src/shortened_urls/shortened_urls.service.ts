@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { CreateShortenedUrlDto } from './dto/create-shortened_url.dto';
 import { UpdateShortenedUrlDto } from './dto/update-shortened_url.dto';
-import { PrismaService } from 'src/prisma.service';
+import { PrismaService } from '../prisma.service';
 
 @Injectable()
 export class ShortenedUrlsService {
