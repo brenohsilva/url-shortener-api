@@ -34,7 +34,7 @@ export class ShortenedUrlsController {
   }
 
   @UseGuards(AuthGuard)
-  @Get()
+  @Get('all')
   findAll(@Req() request: Request) {
     return this.findShortenedUrlUseCase.execute(request);
   }
