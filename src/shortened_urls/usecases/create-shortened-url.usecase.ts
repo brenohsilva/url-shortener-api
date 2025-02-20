@@ -1,13 +1,13 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { ShortenedUrlsService } from '../shortened_urls.service';
-import { generateUniqueCode } from 'src/utils/generate-unique-code';
+import { generateUniqueCode } from '../../utils/generate-unique-code';
 import {
   CreateShortenedUrlDto,
   ShortenedUrlBodyDto,
 } from '../dto/create-shortened_url.dto';
 import { JwtService } from '@nestjs/jwt';
-import { JwtToken } from 'src/utils/token';
+import { JwtToken } from '../../utils/token';
 import { UserDto } from 'src/users/dto/user.dto';
 
 @Injectable()
