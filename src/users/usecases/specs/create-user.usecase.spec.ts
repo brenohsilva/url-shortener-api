@@ -5,7 +5,6 @@ import { HttpException, HttpStatus } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { CreateUserDto } from '../../dto/create-user.dto';
 
-// Mock do bcrypt para corrigir o tipo
 jest.mock('bcrypt', () => ({
   hash: jest.fn(),
 }));
@@ -66,7 +65,6 @@ describe('CreateUserUseCase', () => {
         password: hashedPassword,
       });
 
-      // Verifica o resultado
       expect(result).toEqual({
         success: true,
         data: mockUser,
