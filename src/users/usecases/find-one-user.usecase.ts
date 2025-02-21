@@ -8,7 +8,7 @@ export class FindOneUserUseCase {
 
   async execute(id: string) {
     try {
-      const response = await this.usersService.findOne(id);
+      const response = await this.usersService.findOneById(id);
       if (!response) {
         throw new HttpException(
           'Erro ao trazer o usuário. Usuário não encontrado.',

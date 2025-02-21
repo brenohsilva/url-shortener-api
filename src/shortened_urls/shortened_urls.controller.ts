@@ -17,6 +17,8 @@ import { ShortenedUrlBodyDto } from './dto/create-shortened_url.dto';
 import { FindAllShortenedUrlsUseCase } from './usecases/find-all-shortened-urls.usecase';
 import { FindOneShortenedUrlsUseCase } from './usecases/find-one-shortened-url-usecase';
 import { AuthGuard } from 'src/auth/auth.guard';
+import { ApiCreateShortenedUrl, ApiDeleteShortenedUrl, ApiFindAllShortenedUrls, ApiFindOneShortenedUrl, ApiUpdateShortenedUrl } from './shortened_urls.decorator';
+
 
 @Controller('shortened-urls')
 export class ShortenedUrlsController {
@@ -29,24 +31,28 @@ export class ShortenedUrlsController {
   ) {}
 
   @Post()
+  @ApiCreateShortenedUrl()
   create(@Body() data: ShortenedUrlBodyDto, @Req() request: Request) {
     return this.createShortenedUrlUseCase.execute(data, request);
   }
 
-  @UseGuards(AuthGuard)
   @Get('all')
+  @ApiFindAllShortenedUrls()
+  @UseGuards(AuthGuard)
   findAll(@Req() request: Request) {
     return this.findShortenedUrlUseCase.execute(request);
   }
 
-  @UseGuards(AuthGuard)
   @Get(':id')
+  @ApiFindOneShortenedUrl()
+  @UseGuards(AuthGuard)
   findOne(@Param('id') id: string, @Req() request: Request) {
     return this.findOneShortenedUrlUseCase.execute(id, request);
   }
 
-  @UseGuards(AuthGuard)
   @Patch(':id')
+  @ApiUpdateShortenedUrl()
+  @UseGuards(AuthGuard)
   update(
     @Param('id') id: string,
     @Body() updateShortenedUrlDto: UpdateShortenedUrlDto,
@@ -54,8 +60,9 @@ export class ShortenedUrlsController {
     return this.shortenedUrlsService.update(id, updateShortenedUrlDto);
   }
 
-  @UseGuards(AuthGuard)
   @Delete(':id')
+  @ApiDeleteShortenedUrl()
+  @UseGuards(AuthGuard)
   remove(@Param('id') id: string, @Req() request: Request) {
     return this.deleteShortenedUrlUseCase.execute(id, request);
   }
