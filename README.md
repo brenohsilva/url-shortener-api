@@ -4,7 +4,7 @@ Esta é uma API de encurtamento de URLs desenvolvida com NestJS, Prisma ORM e My
 
 ## Tecnologias Utilizadas
 
-- **Node.js**: Versão 18
+- **Node.js**: Versão 22
 - **NestJS**: Framework para construção de aplicações server-side em Node.js
 - **Prisma ORM**: ORM para gerenciamento de banco de dados
 - **MySQL**: Banco de dados relacional
@@ -77,7 +77,7 @@ Configuração do Projeto
 
 ### Pré-requisitos
 
--   Node.js (v18)
+-   Node.js (v22)
 
 -   Docker e Docker Compose
 
