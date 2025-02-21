@@ -31,7 +31,7 @@ export class FindOneShortenedUrlsUseCase {
       if (!url) {
         return {
           success: true,
-          data: 'url não encontrada',
+          data: 'Erro ao buscar a url. Url não encontrada.',
         };
       }
       return {

@@ -47,7 +47,7 @@ describe('FindOneShortenedUrlsUseCase', () => {
     );
   });
 
-  it('deve retornar "url não encontrada" se a URL não existir', async () => {
+  it('deve retornar "Erro ao buscar a url. Url não encontrada." se a URL não existir', async () => {
     const requestMock = {
       headers: { authorization: 'Bearer fake-token' },
     } as any;
@@ -56,7 +56,10 @@ describe('FindOneShortenedUrlsUseCase', () => {
     jest.spyOn(shortenedUrlsService, 'findOne').mockResolvedValue(null);
 
     const result = await useCase.execute('1', requestMock);
-    expect(result).toEqual({ success: true, data: 'url não encontrada' });
+    expect(result).toEqual({
+      success: true,
+      data: 'Erro ao buscar a url. Url não encontrada.',
+    });
   });
 
   it('deve retornar a URL se ela for encontrada', async () => {

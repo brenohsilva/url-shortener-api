@@ -17,16 +17,14 @@ export function ApiCreateUser() {
       key,
       descriptor,
     );
-    ApiResponse({ status: 400, description: 'Erro na criação do usuário' })(
-      target,
-      key,
-      descriptor,
-    );
-    ApiResponse({ status: 409, description: 'E-mail já cadastrado' })(
-      target,
-      key,
-      descriptor,
-    );
+    ApiResponse({
+      status: 500,
+      description: 'Erro ao criar o usuário. Tente novamente mais tarde.',
+    })(target, key, descriptor);
+    ApiResponse({
+      status: 409,
+      description: 'Este e-mail já está cadastrado.',
+    })(target, key, descriptor);
   };
 }
 
@@ -48,11 +46,19 @@ export function ApiFindOneUser() {
       key,
       descriptor,
     );
-    ApiResponse({ status: 404, description: 'Usuário não encontrado' })(
+    ApiResponse({ status: 401, description: 'Não autorizado' })(
       target,
       key,
       descriptor,
     );
+    ApiResponse({
+      status: 404,
+      description: 'Erro ao trazer o usuário. Usuário não encontrado.',
+    })(target, key, descriptor);
+    ApiResponse({
+      status: 500,
+      description: 'Erro ao trazer o usuário. Tente novamente mais tarde.',
+    })(target, key, descriptor);
   };
 }
 
@@ -67,6 +73,15 @@ export function ApiFindAllUsers() {
     ApiResponse({
       status: 200,
       description: 'Lista de usuários retornada com sucesso',
+    })(target, key, descriptor);
+    ApiResponse({ status: 401, description: 'Não autorizado' })(
+      target,
+      key,
+      descriptor,
+    );
+    ApiResponse({
+      status: 500,
+      description: 'Erro ao trazer os usuários. Tente novamente mais tarde.',
     })(target, key, descriptor);
   };
 }
@@ -86,16 +101,19 @@ export function ApiUpdateUser() {
       key,
       descriptor,
     );
-    ApiResponse({ status: 400, description: 'Erro na atualização do usuário' })(
+    ApiResponse({ status: 401, description: 'Não autorizado' })(
       target,
       key,
       descriptor,
     );
-    ApiResponse({ status: 404, description: 'Usuário não encontrado' })(
-      target,
-      key,
-      descriptor,
-    );
+    ApiResponse({
+      status: 404,
+      description: 'Erro ao trazer o usuário. Usuário não encontrado.',
+    })(target, key, descriptor);
+    ApiResponse({
+      status: 500,
+      description: 'Erro ao atualizar o usuário. Tente novamente mais tarde.',
+    })(target, key, descriptor);
   };
 }
 
@@ -113,10 +131,18 @@ export function ApiDeleteUser() {
       key,
       descriptor,
     );
-    ApiResponse({ status: 404, description: 'Usuário não encontrado' })(
+    ApiResponse({ status: 401, description: 'Não autorizado' })(
       target,
       key,
       descriptor,
     );
+    ApiResponse({
+      status: 404,
+      description: 'Erro ao trazer o usuário. Usuário não encontrado.',
+    })(target, key, descriptor);
+    ApiResponse({
+      status: 500,
+      description: 'Erro ao remover o usuário. Tente novamente mais tarde.',
+    })(target, key, descriptor);
   };
 }
