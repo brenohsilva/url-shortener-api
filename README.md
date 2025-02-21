@@ -98,7 +98,7 @@ Configuração do Projeto
 
     Crie um arquivo `.env` na raiz do projeto e configure as variáveis de ambiente:
 ```
-    DATABASE_URL="mysql://root:teddy@mysql:3307/shorteneddb"
+    DATABASE_URL="mysql://root:teddy@mysql:3306/shorteneddb"
     JWT_SECRET="your_jwt_secret"
     BASE_URL="http://localhost:3000"
 ```
