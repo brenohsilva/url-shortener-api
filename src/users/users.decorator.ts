@@ -1,4 +1,10 @@
-import { ApiOperation, ApiResponse, ApiBody, ApiParam } from '@nestjs/swagger';
+import {
+  ApiOperation,
+  ApiResponse,
+  ApiBody,
+  ApiParam,
+  ApiBearerAuth,
+} from '@nestjs/swagger';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 
@@ -16,11 +22,17 @@ export function ApiCreateUser() {
       key,
       descriptor,
     );
+    ApiResponse({ status: 409, description: 'E-mail já cadastrado' })(
+      target,
+      key,
+      descriptor,
+    );
   };
 }
 
 export function ApiFindOneUser() {
   return function (target: any, key: string, descriptor: PropertyDescriptor) {
+    ApiBearerAuth()(target, key, descriptor);
     ApiOperation({ summary: 'Buscar um usuário pelo ID' })(
       target,
       key,
@@ -46,6 +58,7 @@ export function ApiFindOneUser() {
 
 export function ApiFindAllUsers() {
   return function (target: any, key: string, descriptor: PropertyDescriptor) {
+    ApiBearerAuth()(target, key, descriptor);
     ApiOperation({ summary: 'Listar todos os usuários' })(
       target,
       key,
@@ -60,6 +73,7 @@ export function ApiFindAllUsers() {
 
 export function ApiUpdateUser() {
   return function (target: any, key: string, descriptor: PropertyDescriptor) {
+    ApiBearerAuth()(target, key, descriptor);
     ApiOperation({ summary: 'Atualizar um usuário' })(target, key, descriptor);
     ApiParam({
       name: 'id',
@@ -87,6 +101,7 @@ export function ApiUpdateUser() {
 
 export function ApiDeleteUser() {
   return function (target: any, key: string, descriptor: PropertyDescriptor) {
+    ApiBearerAuth()(target, key, descriptor);
     ApiOperation({ summary: 'Deletar um usuário' })(target, key, descriptor);
     ApiParam({
       name: 'id',
