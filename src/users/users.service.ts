@@ -13,14 +13,18 @@ export class UsersService {
   }
 
   async findAll() {
-    return await this.prisma.users.findMany();
+    return await this.prisma.users.findMany({
+      where: {
+        deleted_at: null,
+      },
+    });
   }
 
   async findOne(email: string) {
     return await this.prisma.users.findUnique({
       where: {
         email,
-        deleted_at: null
+        deleted_at: null,
       },
     });
   }
@@ -29,6 +33,7 @@ export class UsersService {
     return await this.prisma.users.findUnique({
       where: {
         id,
+        deleted_at: null,
       },
     });
   }
@@ -37,6 +42,7 @@ export class UsersService {
     return await this.prisma.users.update({
       where: {
         id,
+        deleted_at: null,
       },
       data: updateUserDto,
     });

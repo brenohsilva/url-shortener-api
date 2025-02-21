@@ -79,7 +79,11 @@ describe('UsersService', () => {
 
       const result = await service.findAll();
 
-      expect(prisma.users.findMany).toHaveBeenCalled();
+      expect(prisma.users.findMany).toHaveBeenCalledWith({
+        where: {
+          deleted_at: null, 
+        },
+      });
       expect(result).toEqual(mockResult);
     });
   });
@@ -104,6 +108,7 @@ describe('UsersService', () => {
       expect(prisma.users.findUnique).toHaveBeenCalledWith({
         where: {
           email,
+          deleted_at: null, 
         },
       });
       expect(result).toEqual(mockResult);
@@ -134,6 +139,7 @@ describe('UsersService', () => {
       expect(prisma.users.update).toHaveBeenCalledWith({
         where: {
           id,
+          deleted_at: null,
         },
         data: updateUserDto,
       });
