@@ -6,6 +6,7 @@ import {
   Patch,
   Param,
   Delete,
+  UseGuards,
 } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -21,6 +22,7 @@ import {
   ApiFindOneUser,
   ApiUpdateUser,
 } from './users.decorator';
+import { AuthGuard } from 'src/auth/auth.guard';
 
 @Controller('users')
 export class UsersController {
@@ -40,24 +42,28 @@ export class UsersController {
 
   @Get('/all')
   @ApiFindAllUsers()
+  @UseGuards(AuthGuard)
   findAll() {
     return this.findAllUsersUSeCase.execute();
   }
 
   @Get(':id')
   @ApiFindOneUser()
+  @UseGuards(AuthGuard)
   findOne(@Param('id') id: string) {
     return this.findOneUserUserUseCase.execute(id);
   }
 
   @Patch(':id')
   @ApiUpdateUser()
+  @UseGuards(AuthGuard)
   update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
     return this.updateUserUseCase.execute(id, updateUserDto);
   }
 
   @Delete(':id')
   @ApiDeleteUser()
+  @UseGuards(AuthGuard)
   remove(@Param('id') id: string) {
     return this.removeUserUseCase.execute(id);
   }
