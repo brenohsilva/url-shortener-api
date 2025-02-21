@@ -62,13 +62,35 @@ A API possui as seguintes rotas para gerenciamento de URLs encurtadas:
 
 -   **GET /:shortCode **: Redireciona para a URL original associada ao código curto.
 
+-----------------------
+
 ### Autenticação
 
 Algumas rotas requerem autenticação via `AuthGuard`. Certifique-se de fornecer um token válido no cabeçalho da requisição.
 
+O Token valido pode ser obtido através do login e senha de um usuário existente. Voce pode criar um usuário através da rota POST /users via swagger. 
+
+No ambiente online já está disponivel as seguintes credenciais do usuário:
+
+E-mail: joe.doe@hotmail.com
+
+Password: 123456
+
+-----------------------
+
+## Deploy
+
+A Api está rodando online no endereço: https://url-shortener-api-gap8.onrender.com
+
+Voce pode consultar a documentação via swagger do servidor online pelo endereço:
+
+https://url-shortener-api-gap8.onrender.com/docs
+
+-----------------------
+
 ### Documentação da API
 
-A documentação da API está disponível via Swagger. Para acessar, inicie o servidor e navegue até:
+A documentação da API está disponível via Swagger. Para acessar, inicie o servidor localmente e navegue até:
 
 http://localhost:3000/docs
 
@@ -87,9 +109,11 @@ Configuração do Projeto
 
 1.  Clone o repositório:
 
+```
     git clone https://github.com/brenohsilva/url-shortener-api.git
-    cd shortened-url-api
 
+    cd shortened-url-api
+```
 2.  Instale as dependências:
 
     npm install
@@ -124,13 +148,6 @@ Para executar os testes, utilize o comando:
 
 npm run test
 
-## Deploy
-
-A Api está rodando online no endereço: https://url-shortener-api-gap8.onrender.com
-
-Voce pode consultar a documentação via swagger da aplicação online pelo endereço:
-
-https://url-shortener-api-gap8.onrender.com/docs
 
 Contribuição
 ------------
