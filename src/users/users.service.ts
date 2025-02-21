@@ -20,6 +20,7 @@ export class UsersService {
     return await this.prisma.users.findUnique({
       where: {
         email,
+        deleted_at: null
       },
     });
   }
