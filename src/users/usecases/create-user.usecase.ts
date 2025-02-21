@@ -1,7 +1,14 @@
-import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  Logger,
+  ConflictException,
+} from '@nestjs/common';
 import { UsersService } from '../users.service';
 import { CreateUserDto } from '../dto/create-user.dto';
 import * as bcrypt from 'bcrypt';
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 
 @Injectable()
 export class CreateUserUseCase {
@@ -20,13 +27,18 @@ export class CreateUserUseCase {
 
       const user = await this.usersService.create(userDataWithHashedPassword);
 
-      if (user) {
-        return {
-          success: true,
-          data: user,
-        };
-      }
+      return {
+        success: true,
+        data: user,
+      };
     } catch (error) {
+      if (
+        error instanceof PrismaClientKnownRequestError &&
+        error.code === 'P2002'
+      ) {
+        throw new ConflictException('Este e-mail já está cadastrado.');
+      }
+
       this.logger.error(error);
       throw new HttpException(
         'Erro ao criar o usuário. Tente novamente mais tarde.',
