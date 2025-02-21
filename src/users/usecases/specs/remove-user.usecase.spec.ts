@@ -14,7 +14,7 @@ describe('RemoveUserUseCase', () => {
         {
           provide: UsersService,
           useValue: {
-            findOne: jest.fn(),
+            findOneById: jest.fn(),
             remove: jest.fn(),
           },
         },
@@ -41,7 +41,7 @@ describe('RemoveUserUseCase', () => {
         deleted_at: null,
       };
 
-      jest.spyOn(usersService, 'findOne').mockResolvedValue(mockUser);
+      jest.spyOn(usersService, 'findOneById').mockResolvedValue(mockUser);
       jest.spyOn(usersService, 'remove').mockResolvedValue({
         ...mockUser,
         deleted_at: new Date(),
@@ -49,7 +49,7 @@ describe('RemoveUserUseCase', () => {
 
       const result = await useCase.execute('123');
 
-      expect(usersService.findOne).toHaveBeenCalledWith('123');
+      expect(usersService.findOneById).toHaveBeenCalledWith('123');
       expect(usersService.remove).toHaveBeenCalledWith('123', expect.any(Date));
       expect(result).toEqual({
         success: true,
@@ -58,7 +58,7 @@ describe('RemoveUserUseCase', () => {
     });
 
     it('should throw HttpException when user is not found', async () => {
-      jest.spyOn(usersService, 'findOne').mockResolvedValue(null);
+      jest.spyOn(usersService, 'findOneById').mockResolvedValue(null);
 
       await expect(useCase.execute('123')).rejects.toThrow(
         new HttpException(
@@ -70,7 +70,7 @@ describe('RemoveUserUseCase', () => {
 
     it('should throw HttpException when an error occurs', async () => {
       jest
-        .spyOn(usersService, 'findOne')
+        .spyOn(usersService, 'findOneById')
         .mockRejectedValue(new Error('Database error'));
 
       await expect(useCase.execute('123')).rejects.toThrow(

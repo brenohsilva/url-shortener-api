@@ -14,7 +14,7 @@ describe('FindOneUserUseCase', () => {
         {
           provide: UsersService,
           useValue: {
-            findOne: jest.fn(),
+            findOneById: jest.fn(),
           },
         },
       ],
@@ -40,11 +40,11 @@ describe('FindOneUserUseCase', () => {
         deleted_at: null,
       };
 
-      jest.spyOn(usersService, 'findOne').mockResolvedValue(mockUser);
+      jest.spyOn(usersService, 'findOneById').mockResolvedValue(mockUser);
 
       const result = await useCase.execute('123');
 
-      expect(usersService.findOne).toHaveBeenCalledWith('123');
+      expect(usersService.findOneById).toHaveBeenCalledWith('123');
       expect(result).toEqual({
         success: true,
         data: mockUser,
@@ -52,7 +52,7 @@ describe('FindOneUserUseCase', () => {
     });
 
     it('should throw HttpException when user is not found', async () => {
-      jest.spyOn(usersService, 'findOne').mockResolvedValue(null);
+      jest.spyOn(usersService, 'findOneById').mockResolvedValue(null);
 
       await expect(useCase.execute('123')).rejects.toThrow(
         new HttpException(
@@ -62,9 +62,9 @@ describe('FindOneUserUseCase', () => {
       );
     });
 
-    it('should throw HttpException when usersService.findOne fails', async () => {
+    it('should throw HttpException when usersService.findOneById fails', async () => {
       jest
-        .spyOn(usersService, 'findOne')
+        .spyOn(usersService, 'findOneById')
         .mockRejectedValue(new Error('Database error'));
 
       await expect(useCase.execute('123')).rejects.toThrow(

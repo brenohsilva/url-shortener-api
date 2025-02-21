@@ -15,7 +15,7 @@ describe('UpdateUserUseCase', () => {
         {
           provide: UsersService,
           useValue: {
-            findOne: jest.fn(),
+            findOneById: jest.fn(),
             update: jest.fn(),
           },
         },
@@ -51,12 +51,12 @@ describe('UpdateUserUseCase', () => {
         name: 'Updated User',
       };
 
-      jest.spyOn(usersService, 'findOne').mockResolvedValue(mockUser);
+      jest.spyOn(usersService, 'findOneById').mockResolvedValue(mockUser);
       jest.spyOn(usersService, 'update').mockResolvedValue(updatedUser);
 
       const result = await useCase.execute('123', updateUserDto);
 
-      expect(usersService.findOne).toHaveBeenCalledWith('123');
+      expect(usersService.findOneById).toHaveBeenCalledWith('123');
       expect(usersService.update).toHaveBeenCalledWith('123', updateUserDto);
       expect(result).toEqual({
         success: true,
@@ -69,11 +69,11 @@ describe('UpdateUserUseCase', () => {
         name: 'Updated User',
       };
 
-      jest.spyOn(usersService, 'findOne').mockResolvedValue(null);
+      jest.spyOn(usersService, 'findOneById').mockResolvedValue(null);
 
       await expect(useCase.execute('123', updateUserDto)).rejects.toThrow(
         new HttpException(
-          'Erro ao atualzar o usuário. Tente novamente mais tarde.',
+          'Erro ao atualizar o usuário. Tente novamente mais tarde.',
           HttpStatus.NOT_FOUND,
         ),
       );
@@ -85,12 +85,12 @@ describe('UpdateUserUseCase', () => {
       };
 
       jest
-        .spyOn(usersService, 'findOne')
+        .spyOn(usersService, 'findOneById')
         .mockRejectedValue(new Error('Database error'));
 
       await expect(useCase.execute('123', updateUserDto)).rejects.toThrow(
         new HttpException(
-          'Erro ao atualzar o usuário. Tente novamente mais tarde.',
+          'Erro ao atualizar o usuário. Tente novamente mais tarde.',
           HttpStatus.INTERNAL_SERVER_ERROR,
         ),
       );
