@@ -1,99 +1,156 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Shortened URL API
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+Esta é uma API de encurtamento de URLs desenvolvida com NestJS, Prisma ORM e MySQL. A API permite que os usuários criem, gerenciem e acessem URLs encurtadas. A documentação da API é fornecida via Swagger.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## Tecnologias Utilizadas
 
-## Description
+- **Node.js**: Versão 18
+- **NestJS**: Framework para construção de aplicações server-side em Node.js
+- **Prisma ORM**: ORM para gerenciamento de banco de dados
+- **MySQL**: Banco de dados relacional
+- **Docker**: Para containerização e gerenciamento de dependências
+- **Swagger**: Para documentação da API
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## Estrutura do Projeto
 
-## Project setup
+### Modelos do Banco de Dados
 
-```bash
-$ npm install
+O banco de dados possui duas tabelas principais:
+
+- **Users**: Armazena informações dos usuários.
+- **Shortened_urls**: Armazena as URLs encurtadas e suas informações.
+
+```prisma
+model Users {
+  id         String           @id @default(uuid())
+  name       String
+  email      String           @unique
+  password   String
+  created_at DateTime         @default(now())
+  updated_at DateTime         @updatedAt
+  deleted_at DateTime?
+  urls       Shortened_urls[]
+}
+
+model Shortened_urls {
+  id           String    @id @default(uuid())
+  users_id     String?
+  short_code   String    @unique
+  original_url String
+  shorten_url  String
+  clicks       Int       @default(0)
+  created_at   DateTime  @default(now())
+  updated_at   DateTime  @updatedAt
+  deleted_at   DateTime?
+
+  user Users? @relation(fields: [users_id], references: [id])
+}
 ```
+### Rotas da API
 
-## Compile and run the project
+A API possui as seguintes rotas para gerenciamento de URLs encurtadas:
 
-```bash
-# development
-$ npm run start
+-   **POST /shortened-urls**: Cria uma nova URL encurtada.
 
-# watch mode
-$ npm run start:dev
+-   **GET /shortened-urls/all**: Lista todas as URLs encurtadas (requer autenticação).
 
-# production mode
-$ npm run start:prod
+-   **GET /shortened-urls/:id **: Obtém detalhes de uma URL encurtada específica (requer autenticação).
+
+-   **PATCH /shortened-urls/:id **: Atualiza uma URL encurtada (requer autenticação).
+
+-   **DELETE /shortened-urls/:id **: Remove uma URL encurtada (requer autenticação).
+
+-   **GET /:shortCode **: Redireciona para a URL original associada ao código curto.
+
+### Autenticação
+
+Algumas rotas requerem autenticação via `AuthGuard`. Certifique-se de fornecer um token válido no cabeçalho da requisição.
+
+### Documentação da API
+
+A documentação da API está disponível via Swagger. Para acessar, inicie o servidor e navegue até:
+
+http://localhost:3000/docs
+
+Configuração do Projeto
+-----------------------
+
+### Pré-requisitos
+
+-   Node.js (v18)
+
+-   Docker e Docker Compose
+
+-   MySQL
+
+### Instalação
+
+1.  Clone o repositório:
+
+    git clone https://github.com/brenohsilva/url-shortener-api.git
+    cd shortened-url-api
+
+2.  Instale as dependências:
+
+    npm install
+
+3.  Configure o ambiente:
+
+    Crie um arquivo `.env` na raiz do projeto e configure as variáveis de ambiente:
 ```
-
-## Run tests
-
-```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+    DATABASE_URL="mysql://root:teddy@mysql:3307/shorteneddb"
+    JWT_SECRET="your_jwt_secret"
+    BASE_URL="http://localhost:3000"
 ```
+5.  Inicie o banco de dados com Docker Compose:
 
-## Deployment
+    docker-compose up -d
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+6.  Execute as migrações do Prisma:
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+    npx prisma migrate dev
 
-```bash
-$ npm install -g mau
-$ mau deploy
-```
+7.  Inicie o servidor:
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+    npm run start:dev
 
-## Resources
+### Uso
 
-Check out a few resources that may come in handy when working with NestJS:
+Após iniciar o servidor, a API estará disponível em `http://localhost:3000`. Use o Swagger para testar as rotas ou faça requisições diretamente via `curl`, Postman, ou qualquer outra ferramenta de sua preferência.
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+### Testes
 
-## Support
+Para executar os testes, utilize o comando:
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+npm run test
 
-## Stay in touch
+## Deploy
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+A Api está rodando online no endereço: https://url-shortener-api-gap8.onrender.com
 
-## License
+Voce pode consultar a documentação via swagger da aplicação online pelo endereço:
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+https://url-shortener-api-gap8.onrender.com/docs
+
+Contribuição
+------------
+
+Contribuições são bem-vindas! Sinta-se à vontade para abrir issues e pull requests.
+
+Licença
+-------
+
+Este projeto está licenciado sob a [MIT License](https://chat.deepseek.com/a/chat/s/LICENSE).
+
+
+### Explicação do README
+
+1. **Título e Descrição**: Introdução ao projeto e suas funcionalidades.
+2. **Tecnologias Utilizadas**: Lista das principais tecnologias usadas.
+3. **Estrutura do Projeto**: Descrição dos modelos do banco de dados e rotas da API.
+4. **Configuração do Projeto**: Passos para instalação e configuração do ambiente.
+5. **Uso**: Como usar a API após a configuração.
+6. **Testes**: Como executar os testes.
+7. **Deploy**: Endereço da aplicação online.
+8. **Contribuição**: Informações sobre como contribuir para o projeto.
+9. **Licença**: Informações sobre a licença do projeto.
