@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { CreateUserUseCase } from '../create-user.usecase';
 import { UsersService } from '../../users.service';
 import { HttpException, HttpStatus } from '@nestjs/common';
-import * as bcrypt from 'bcrypt';
+import * as bcrypt from 'bcryptjs';
 import { CreateUserDto } from '../../dto/create-user.dto';
 
 jest.mock('bcrypt', () => ({
