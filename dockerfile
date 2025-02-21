@@ -1,5 +1,4 @@
-
-FROM node:22-alpine 
+FROM node:22-alpine
 
 WORKDIR /api
 
@@ -9,6 +8,9 @@ RUN npm install
 
 COPY . .
 
+# Gera o Prisma Client
+RUN npx prisma generate
+
 EXPOSE 3000
 
-CMD ["npm", "run", "start:dev"]
+CMD ["sh", "-c", "npx prisma migrate deploy && npx prisma db seed && npm run start:dev"]

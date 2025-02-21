@@ -8,9 +8,10 @@ services:
     environment:
       - DATABASE_URL=mysql://root:teddy@mysql:3306/shorteneddb
     depends_on:
-      - mysql
+      mysql:
+        condition: service_healthy
     volumes:
-      - .:/apI
+      - .:/api
       - /app/node_modules
 
   mysql:
@@ -21,9 +22,14 @@ services:
       MYSQL_ROOT_PASSWORD: teddy
       MYSQL_DATABASE: shorteneddb
     ports:
-      - "3307:3306"
+      - "3306:3306"
     volumes:
       - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      timeout: 10s
+      retries: 10
 
 volumes:
   mysql_data:
