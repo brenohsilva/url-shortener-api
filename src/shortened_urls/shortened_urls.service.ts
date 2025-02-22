@@ -35,7 +35,7 @@ export class ShortenedUrlsService {
     return await this.prisma.shortened_urls.findUnique({
       where: {
         short_code: shortCode,
-        deleted_at: null
+        deleted_at: null,
       },
     });
   }

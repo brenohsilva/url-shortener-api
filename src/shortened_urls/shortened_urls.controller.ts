@@ -17,8 +17,13 @@ import { ShortenedUrlBodyDto } from './dto/create-shortened_url.dto';
 import { FindAllShortenedUrlsUseCase } from './usecases/find-all-shortened-urls.usecase';
 import { FindOneShortenedUrlsUseCase } from './usecases/find-one-shortened-url-usecase';
 import { AuthGuard } from 'src/auth/auth.guard';
-import { ApiCreateShortenedUrl, ApiDeleteShortenedUrl, ApiFindAllShortenedUrls, ApiFindOneShortenedUrl, ApiUpdateShortenedUrl } from './shortened_urls.decorator';
-
+import {
+  ApiCreateShortenedUrl,
+  ApiDeleteShortenedUrl,
+  ApiFindAllShortenedUrls,
+  ApiFindOneShortenedUrl,
+  ApiUpdateShortenedUrl,
+} from './shortened_urls.decorator';
 
 @Controller('shortened-urls')
 export class ShortenedUrlsController {

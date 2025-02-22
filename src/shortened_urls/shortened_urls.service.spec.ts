@@ -156,7 +156,7 @@ describe('ShortenedUrlsService', () => {
       expect(prisma.shortened_urls.findUnique).toHaveBeenCalledWith({
         where: {
           short_code: shortCode,
-          deleted_at: null, 
+          deleted_at: null,
         },
       });
       expect(result).toEqual(mockResult);
