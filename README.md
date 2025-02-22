@@ -46,29 +46,30 @@ model Shortened_urls {
   user Users? @relation(fields: [users_id], references: [id])
 }
 ```
+
 ### Rotas da API
 
 A API possui as seguintes rotas para gerenciamento de URLs encurtadas:
 
--   **POST /shortened-urls**: Cria uma nova URL encurtada.
+- **POST /shortened-urls**: Cria uma nova URL encurtada.
 
--   **GET /shortened-urls/all**: Lista todas as URLs encurtadas (requer autenticação).
+- **GET /shortened-urls/all**: Lista todas as URLs encurtadas (requer autenticação).
 
--   **GET /shortened-urls/:id **: Obtém detalhes de uma URL encurtada específica (requer autenticação).
+- **GET /shortened-urls/:id **: Obtém detalhes de uma URL encurtada específica (requer autenticação).
 
--   **PATCH /shortened-urls/:id **: Atualiza uma URL encurtada (requer autenticação).
+- **PATCH /shortened-urls/:id **: Atualiza uma URL encurtada (requer autenticação).
 
--   **DELETE /shortened-urls/:id **: Remove uma URL encurtada (requer autenticação).
+- **DELETE /shortened-urls/:id **: Remove uma URL encurtada (requer autenticação).
 
--   **GET /:shortCode **: Redireciona para a URL original associada ao código curto.
+- **GET /:shortCode **: Redireciona para a URL original associada ao código curto.
 
------------------------
+---
 
 ### Autenticação
 
 Algumas rotas requerem autenticação via `AuthGuard`. Certifique-se de fornecer um token válido no cabeçalho da requisição.
 
-O Token valido pode ser obtido através do login e senha de um usuário existente. Voce pode criar um usuário através da rota POST /users via swagger. 
+O Token valido pode ser obtido através do login e senha de um usuário existente. Voce pode criar um usuário através da rota POST /users via swagger.
 
 No ambiente online já está disponivel as seguintes credenciais do usuário:
 
@@ -76,7 +77,7 @@ E-mail: joe.doe@hotmail.com
 
 Password: 123456
 
------------------------
+---
 
 ## Deploy
 
@@ -86,7 +87,7 @@ Voce pode consultar a documentação via swagger do servidor online pelo endere�
 
 https://url-shortener-api-gap8.onrender.com/docs
 
------------------------
+---
 
 ### Documentação da API
 
@@ -94,16 +95,15 @@ A documentação da API está disponível via Swagger. Para acessar, inicie o se
 
 http://localhost:3000/docs
 
-Configuração do Projeto
------------------------
+## Configuração do Projeto
 
 ### Pré-requisitos
 
--   Node.js (v22)
+- Node.js (v22)
 
--   Docker e Docker Compose
+- Docker e Docker Compose
 
--   MySQL
+- MySQL
 
 ### Instalação
 
@@ -114,6 +114,7 @@ Configuração do Projeto
 
     cd shortened-url-api
 ```
+
 2.  Instale as dependências:
 
     npm install
@@ -121,22 +122,30 @@ Configuração do Projeto
 3.  Configure o ambiente:
 
     Crie um arquivo `.env` na raiz do projeto e configure as variáveis de ambiente:
+
 ```
-    DATABASE_URL="mysql://root:teddy@mysql:3306/shorteneddb"
-    JWT_SECRET="your_jwt_secret"
-    BASE_URL="http://localhost:3000"
+    DATABASE_URL='mysql://root:teddy@localhost:3306/shorteneddb'
+    JWT_SECRET='SECRETKEY'
+    BASE_URL='http://localhost:3000'
 ```
+
 5.  Inicie o banco de dados com Docker Compose:
 
+```
     docker-compose up -d
+```
 
-6.  Execute as migrações do Prisma:
+Ou
 
-    npx prisma migrate dev
+```
+docker-compose up --build
+```
 
-7.  Inicie o servidor:
+6.  Inicie o servidor:
 
+```
     npm run start:dev
+```
 
 ### Uso
 
@@ -148,17 +157,13 @@ Para executar os testes, utilize o comando:
 
 npm run test
 
-
-Contribuição
-------------
+## Contribuição
 
 Contribuições são bem-vindas! Sinta-se à vontade para abrir issues e pull requests.
 
-Licença
--------
+## Licença
 
 Este projeto está licenciado sob a [MIT License](https://chat.deepseek.com/a/chat/s/LICENSE).
-
 
 ### Explicação do README
 
