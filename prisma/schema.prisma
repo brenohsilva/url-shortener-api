@@ -5,7 +5,7 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
   binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
 }
 
@@ -15,26 +15,43 @@ datasource db {
 }
 
 model Users {
-  id         String           @id @default(uuid())
+  id         Int       @id @default(autoincrement())
   name       String
-  email      String           @unique
+  email      String    @unique
   password   String
-  created_at DateTime         @default(now())
-  updated_at DateTime         @updatedAt
+  created_at DateTime  @default(now())
+  updated_at DateTime  @default(now())
   deleted_at DateTime?
-  urls       Shortened_urls[]
+
+  workspaces    Workspaces[]    @relation("UserWorkspaces")
+  shortenerUrls ShortenerUrls[]
 }
 
-model Shortened_urls {
-  id           String    @id @default(uuid())
-  users_id     String?
-  short_code   String    @unique
-  original_url String
-  shorten_url String
-  clicks       Int       @default(0)
-  created_at   DateTime  @default(now())
-  updated_at   DateTime  @updatedAt
-  deleted_at   DateTime?
+model Workspaces {
+  id         String       @id @default(uuid())
+  name       String
+  ownerId    Int
+  created_at DateTime  @default(now())
+  update_at  DateTime  @default(now())
+  deleted_at DateTime?
 
-  user Users? @relation(fields: [users_id], references: [id])
+  ownerUser     Users           @relation("UserWorkspaces", fields: [ownerId], references: [id])
+  shortenerUrls ShortenerUrls[]
+}
+
+model ShortenerUrls {
+  id          Int       @id @default(autoincrement())
+  userId      Int?
+  workspaceId String?
+  shortCode   String    @unique
+  originUrl   String
+  shortenUrl  String
+  clicks      Int       @default(0)
+  created_at  DateTime  @default(now())
+  update_at   DateTime  @default(now())
+  deleted_at  DateTime?
+  expires_at  DateTime?
+
+  user      Users?      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  workspace Workspaces? @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
 }
