@@ -79,10 +79,15 @@ export class ShortenerUrlsService {
       },
       include: {
         tags: true,
+        _count: {
+          select: {
+            clicks: true,
+          },
+        },
       },
     });
 
-    return urls ;
+    return urls;
   }
 
   async findOne(id: number, request: Request) {
@@ -98,6 +103,7 @@ export class ShortenerUrlsService {
       },
       include: {
         tags: true,
+        clicks: true,
       },
     });
 
@@ -142,15 +148,11 @@ export class ShortenerUrlsService {
     };
   }
 
-  async updateClicks(id: number) {
-    return await this.prisma.shortenerUrls.update({
-      where: {
-        id,
-      },
+  async updateClicks(id: number, date: string) {
+    return await this.prisma.clicks.create({
       data: {
-        clicks: {
-          increment: 1,
-        },
+        shortenerUrls_id: id,
+        created_at: new Date(date),
       },
     });
   }

@@ -29,7 +29,7 @@ describe('CreateShortenedUrlUseCase', () => {
     useCase = module.get<CreateShortenedUrlUseCase>(CreateShortenedUrlUseCase);
     jwtService = module.get<JwtService>(JwtService);
 
-    process.env.BASE_URL = 'http://localhost:3000';
+    process.env.BASE_URL = 'http://localhost:4000';
   });
 
   it('deve criar uma URL encurtada com um usuário autenticado', async () => {

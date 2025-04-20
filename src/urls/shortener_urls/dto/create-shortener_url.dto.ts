@@ -25,7 +25,7 @@ export class CreateShortenerUrlDto {
   @IsString()
   origin_url: string;
 
-  @ApiProperty({example: 'http://localhost:3000/KJumIA', description: 'Url encurtada'})
+  @ApiProperty({example: 'http://localhost:4000/KJumIA', description: 'Url encurtada'})
   @IsNotEmpty()
   @IsString()
   shorten_url: string;

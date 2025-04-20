@@ -26,7 +26,7 @@ export class CreateShortenerUrlUseCase {
     try {
       const { origin_url, short_code, comments, tags } = data;
       const shortCode = short_code || generateUniqueCode();
-      const baseUrl = process.env.BASE_URL || 'http://localhost:3000';
+      const baseUrl = process.env.BASE_URL || 'http://localhost:4000';
       const shortenUrl = `${baseUrl}/${shortCode}`;
 
       const accessToken = JwtToken(request);

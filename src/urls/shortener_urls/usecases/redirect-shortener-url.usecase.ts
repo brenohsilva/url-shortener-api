@@ -8,6 +8,7 @@ import {
 import { ShortenerUrlsService } from '../shortener-urls.service';
 import { Response } from 'express';
 import { ensureUrlHasProtocol } from '../../../utils/ensured-has-protocol';
+import { formatDateToISOWithoutTimezone } from 'src/utils/format-date';
 @Injectable()
 export class RedirectShortenedUrlUseCase {
   constructor(private readonly shortendUrlService: ShortenerUrlsService) {}
@@ -21,7 +22,10 @@ export class RedirectShortenedUrlUseCase {
         throw new NotFoundException('URL não encontrada');
       }
       const originalUrl = ensureUrlHasProtocol(url.origin_url);
-      await this.shortendUrlService.updateClicks(url.id);
+
+      const now = formatDateToISOWithoutTimezone(new Date());
+      await this.shortendUrlService.updateClicks(url.id, now);
+
       return res.redirect(originalUrl);
     } catch (error) {
       this.logger.error(error);
