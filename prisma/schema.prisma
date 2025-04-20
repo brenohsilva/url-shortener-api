@@ -25,7 +25,7 @@ model Users {
 
   shortenerUrls ShortenerUrls[] @relation("UserShortenerUrls")
   workspaces    Workspaces[]    @relation("UserWorkspaces")
-  tags          tags[]          @relation("UserTags")
+  tags          Tags[]          @relation("UserTags")
 }
 
 model Workspaces {
@@ -48,7 +48,6 @@ model ShortenerUrls {
   short_code    String    @unique
   origin_url    String
   shorten_url   String
-  clicks        Int       @default(0)
   comments      String?
   created_at    DateTime  @default(now())
   update_at     DateTime  @default(now())
@@ -57,10 +56,19 @@ model ShortenerUrls {
 
   user      Users?      @relation("UserShortenerUrls", fields: [users_id], references: [id], onDelete: Cascade)
   workspace Workspaces? @relation("WorkspaceShortenerUrls", fields: [workspaces_id], references: [id], onDelete: Cascade)
-  tags      tags[]      @relation("ShortenerUrlsTags")
+  tags      Tags[]      @relation("ShortenerUrlsTags")
+  clicks    Clicks[]    @relation("ShortenerUrlsClicks")
 }
 
-model tags {
+model Clicks {
+  id               Int      @id @default(autoincrement())
+  shortenerUrls_id Int
+  created_at       DateTime @default(now())
+
+  shortenerUrls ShortenerUrls @relation("ShortenerUrlsClicks", fields: [shortenerUrls_id], references: [id], onDelete: Cascade)
+}
+
+model Tags {
   id       Int    @id @default(autoincrement())
   users_id Int
   name     String @unique
