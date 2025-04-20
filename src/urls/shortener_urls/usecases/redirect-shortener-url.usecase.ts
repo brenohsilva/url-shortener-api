@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common';
 import { ShortenerUrlsService } from '../shortener-urls.service';
 import { Response } from 'express';
-import { ensureUrlHasProtocol } from '../../utils/ensured-has-protocol';
+import { ensureUrlHasProtocol } from '../../../utils/ensured-has-protocol';
 @Injectable()
 export class RedirectShortenedUrlUseCase {
   constructor(private readonly shortendUrlService: ShortenerUrlsService) {}
@@ -20,7 +20,7 @@ export class RedirectShortenedUrlUseCase {
       if (!url) {
         throw new NotFoundException('URL não encontrada');
       }
-      const originalUrl = ensureUrlHasProtocol(url.originUrl);
+      const originalUrl = ensureUrlHasProtocol(url.origin_url);
       await this.shortendUrlService.updateClicks(url.id);
       return res.redirect(originalUrl);
     } catch (error) {

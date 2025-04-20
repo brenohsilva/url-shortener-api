@@ -5,7 +5,7 @@ import {
   ApiParam,
   ApiBearerAuth,
 } from '@nestjs/swagger';
-import { ShortenerUrlBodyDto } from './dto/shortener-url-body.dto';
+import { ShortenerUrlBodyDto } from './dto/create-shortener_url-body.dto';
 import { UpdateShortenerUrlDto } from './dto/update-shortener_url.dto';
 
 

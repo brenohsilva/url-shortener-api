@@ -3,8 +3,8 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import * as bcrypt from 'bcryptjs';
-import { AlreadyExistsError } from './errors/already-exists.error';
-import { NotFoundError } from './errors/not-found.error';
+import { AlreadyExistsError } from 'src/common/errors/already-exists.error';
+import { NotFoundError } from 'src/common/errors/not-found.error';
 
 @Injectable()
 export class UsersService {
@@ -32,11 +32,7 @@ export class UsersService {
   }
 
   async findAll() {
-    return await this.prisma.users.findMany({
-      where: {
-        deleted_at: null,
-      },
-    });
+    return await this.prisma.users.findMany({});
   }
 
   async findOne(id: number) {
@@ -55,12 +51,18 @@ export class UsersService {
   }
 
   async findOneByEmail(email: string) {
-    return await this.prisma.users.findUnique({
+    const user = await this.prisma.users.findUnique({
       where: {
         email,
         deleted_at: null,
       },
     });
+
+    if (!user) {
+      throw new NotFoundError('user', 'id', email);
+    }
+
+    return user;
   }
 
   async update(id: number, updateUserDto: UpdateUserDto) {
@@ -75,6 +77,19 @@ export class UsersService {
 
     if (!user) {
       throw new NotFoundError('user', 'id', id);
+    }
+
+    if (email) {
+      const userWithEmail = await this.prisma.users.findFirst({
+        where: {
+          email,
+          deleted_at: null,
+        },
+      });
+
+      if (userWithEmail && userWithEmail.id !== id) {
+        throw new AlreadyExistsError('user', 'email', email);
+      }
     }
 
     const data: UpdateUserDto = { name, email };
@@ -104,7 +119,7 @@ export class UsersService {
       throw new NotFoundError('user', 'id', id);
     }
 
-    return await this.prisma.users.update({
+    const deletedUser = await this.prisma.users.update({
       where: {
         id,
       },
@@ -112,5 +127,9 @@ export class UsersService {
         deleted_at: deletedDate,
       },
     });
+
+    if (deletedUser) {
+      return { message: 'User deleted successfully' };
+    }
   }
 }

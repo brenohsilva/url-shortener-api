@@ -1,34 +1,44 @@
 /* eslint-disable prettier/prettier */
 import { ApiProperty } from '@nestjs/swagger';
 import { IsDate, IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
+import { CreateTagBodyDto } from './create-shortener_url-body.dto';
+
 
 export class CreateShortenerUrlDto {
   @ApiProperty({ example: '145', description: 'Id do usuário'})
   @IsOptional()
   @IsNumber()
-  usersId?: number;
+  users_id?: number;
 
   @ApiProperty({ example: '675', description: 'Id do workspace'})
   @IsOptional()
   @IsNumber()
-  worskpacesId?: number;
+  workspaces_id?: string;
 
   @ApiProperty({example: 'KJumIA', description: 'Codigo de encurtamento'})
   @IsNotEmpty()
   @IsString()
-  shortCode: string;
+  short_code: string;
 
   @ApiProperty({example: 'https://teddydigital.io', description: 'Url para ser encurtada'})
   @IsNotEmpty()
   @IsString()
-  originUrl: string;
+  origin_url: string;
 
   @ApiProperty({example: 'http://localhost:3000/KJumIA', description: 'Url encurtada'})
   @IsNotEmpty()
   @IsString()
-  shortenUrl: string;
+  shorten_url: string;
+
+  @ApiProperty({example: 'Comentários sobre a URL', description: 'Comentários sobre a URL'})
+  @IsString()
+  comments?: string | null;
+
+  @ApiProperty({example: ['tag1', 'tag2'], description: 'Tags associadas à URL'})
+  @IsString({ each: true })
+  tags?: CreateTagBodyDto[] | null;
 
   @IsOptional()
   @IsDate()
-  expiresAt?: Date;
+  expires_at?: Date;
 }

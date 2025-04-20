@@ -5,13 +5,14 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { Injectable } from '@nestjs/common';
 
-import { PrismaService } from '../prisma/prisma.service';
+import { PrismaService } from '../../prisma/prisma.service';
 import { JwtService } from '@nestjs/jwt';
 import { JwtToken } from 'src/utils/token';
 import { UserDto } from 'src/identity/users/dto/user-response.dto';
-import { AlreadyExistsError } from 'src/identity/users/errors/already-exists.error';
+
 import { CreateShortenerUrlDto } from './dto/create-shortener_url.dto';
 import { UpdateShortenerUrlDto } from './dto/update-shortener_url.dto';
+import { AlreadyExistsError } from 'src/common/errors/already-exists.error';
 
 @Injectable()
 export class ShortenerUrlsService {
@@ -20,9 +21,50 @@ export class ShortenerUrlsService {
     private readonly jwtService: JwtService,
   ) {}
   async create(createShortenerUrlDto: CreateShortenerUrlDto) {
-    return await this.prisma.shortenerUrls.create({
-      data: createShortenerUrlDto,
+    const url = await this.prisma.shortenerUrls.create({
+      data: {
+        origin_url: createShortenerUrlDto.origin_url,
+        short_code: createShortenerUrlDto.short_code,
+        shorten_url: createShortenerUrlDto.shorten_url,
+        comments: createShortenerUrlDto.comments || null,
+        users_id: createShortenerUrlDto.users_id || null,
+        workspaces_id: createShortenerUrlDto.workspaces_id || null,
+        expires_at: createShortenerUrlDto.expires_at || null,
+      },
     });
+
+    if (createShortenerUrlDto.tags && createShortenerUrlDto.users_id) {
+      for (const tag of createShortenerUrlDto.tags) {
+        const existingTag = await this.prisma.tags.findUnique({
+          where: { name: tag.name },
+        });
+
+        let tagId: number;
+
+        if (existingTag) {
+          tagId = existingTag.id;
+        } else {
+          const newTag = await this.prisma.tags.create({
+            data: {
+              name: tag.name,
+              users_id: createShortenerUrlDto.users_id,
+            },
+          });
+          tagId = newTag.id;
+        }
+
+        await this.prisma.shortenerUrls.update({
+          where: { id: url.id },
+          data: {
+            tags: {
+              connect: { id: tagId },
+            },
+          },
+        });
+      }
+    }
+
+    return { data: url };
   }
 
   async findAll(request: Request) {
@@ -32,12 +74,15 @@ export class ShortenerUrlsService {
 
     const urls = await this.prisma.shortenerUrls.findMany({
       where: {
-        userId: Number(userId),
+        users_id: Number(userId),
         deleted_at: null,
+      },
+      include: {
+        tags: true,
       },
     });
 
-    return {data: urls};
+    return urls ;
   }
 
   async findOne(id: number, request: Request) {
@@ -48,8 +93,11 @@ export class ShortenerUrlsService {
     const url = await this.prisma.shortenerUrls.findUnique({
       where: {
         id,
-        userId: Number(userId),
+        users_id: Number(userId),
         deleted_at: null,
+      },
+      include: {
+        tags: true,
       },
     });
 
@@ -57,25 +105,24 @@ export class ShortenerUrlsService {
       throw new AlreadyExistsError('url', 'id', id);
     }
 
-    return {data: url}
+    return { data: url };
   }
 
   async findByShortCode(shortCode: string) {
     return await this.prisma.shortenerUrls.findUnique({
       where: {
-        shortCode: shortCode,
+        short_code: shortCode,
         deleted_at: null,
       },
     });
   }
 
   async update(id: number, updateShortenerUrlDto: UpdateShortenerUrlDto) {
-
     const url = await this.prisma.shortenerUrls.findUnique({
       where: {
-        id
-      }
-    })
+        id,
+      },
+    });
 
     if (!url) {
       throw new AlreadyExistsError('url', 'id', id);
@@ -86,13 +133,13 @@ export class ShortenerUrlsService {
         id,
       },
       data: {
-        originUrl: updateShortenerUrlDto.originiUrl,
+        origin_url: updateShortenerUrlDto.originiUrl,
       },
     });
 
     return {
-      data: updatedUrl
-    }
+      data: updatedUrl,
+    };
   }
 
   async updateClicks(id: number) {
@@ -109,17 +156,16 @@ export class ShortenerUrlsService {
   }
 
   async remove(id: number) {
-
     const url = await this.prisma.shortenerUrls.findUnique({
       where: {
-        id
-      }
-    })
+        id,
+      },
+    });
 
     if (!url) {
       throw new AlreadyExistsError('url', 'id', id);
     }
-    const deletedDate = new Date()
+    const deletedDate = new Date();
     const deletedUrl = await this.prisma.shortenerUrls.update({
       where: {
         id,
@@ -130,7 +176,7 @@ export class ShortenerUrlsService {
     });
 
     if (deletedUrl) {
-      return {message: "Url deleted successfully"}
+      return { message: 'Url deleted successfully' };
     }
   }
 }

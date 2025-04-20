@@ -19,13 +19,14 @@ import {
   ApiUpdateShortenedUrl,
 } from './shortener-urls-swagger.decorator';
 import { UpdateShortenerUrlDto } from './dto/update-shortener_url.dto';
-import { ShortenerUrlBodyDto } from './dto/shortener-url-body.dto';
+import { ShortenerUrlBodyDto } from './dto/create-shortener_url-body.dto';
 import { CreateShortenerUrlUseCase } from './usecases/create-shortener-url.usecase';
 
-@Controller('shortened-urls')
+@Controller('api/urls')
 export class ShortenedUrlsController {
-  constructor(private readonly shortenerUrlsService: ShortenerUrlsService,
-    private readonly createShortenerUrlUseCase: CreateShortenerUrlUseCase
+  constructor(
+    private readonly shortenerUrlsService: ShortenerUrlsService,
+    private readonly createShortenerUrlUseCase: CreateShortenerUrlUseCase,
   ) {}
 
   @Post()
@@ -34,7 +35,7 @@ export class ShortenedUrlsController {
     return this.createShortenerUrlUseCase.execute(data, request);
   }
 
-  @Get('all')
+  @Get()
   @ApiFindAllShortenedUrls()
   @UseGuards(AuthGuard)
   findAll(@Req() request: Request) {

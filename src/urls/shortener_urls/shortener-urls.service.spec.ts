@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ShortenedUrlsService } from './shortener-urls.service';
-import { PrismaService } from '../prisma/prisma.service';
+import { PrismaService } from '../../prisma/prisma.service';
 import { CreateShortenedUrlDto } from './dto/create-shortener_url.dto';
 import { UpdateShortenedUrlDto } from './dto/update-shortener_url.dto';
 
