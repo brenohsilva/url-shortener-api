@@ -55,8 +55,13 @@ export class ShortenedUrlsController {
   update(
     @Param('id') id: string,
     @Body() updateShortenerUrlDto: UpdateShortenerUrlDto,
+    @Req() request: Request,
   ) {
-    return this.shortenerUrlsService.update(+id, updateShortenerUrlDto);
+    return this.shortenerUrlsService.update(
+      +id,
+      updateShortenerUrlDto,
+      request,
+    );
   }
 
   @Delete(':id')

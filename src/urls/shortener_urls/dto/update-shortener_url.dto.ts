@@ -1,13 +1,5 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsString } from 'class-validator';
+import { PartialType } from '@nestjs/swagger';
 
-export class UpdateShortenerUrlDto {
-  @ApiProperty({
-    example: 'https://teddydigital.io',
-    description: 'Url Original',
-  })
-  @IsString()
-  @IsNotEmpty()
-  originiUrl: string;
-  clicks?: number;
-}
+import { CreateShortenerUrlDto } from './create-shortener_url.dto';
+
+export class UpdateShortenerUrlDto extends PartialType(CreateShortenerUrlDto) {}
