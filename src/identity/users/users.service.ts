@@ -5,10 +5,16 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import * as bcrypt from 'bcryptjs';
 import { AlreadyExistsError } from 'src/common/errors/already-exists.error';
 import { NotFoundError } from 'src/common/errors/not-found.error';
+import { JwtToken } from 'src/utils/token';
+import { JwtService } from '@nestjs/jwt';
+import { UserDto } from './dto/user-response.dto';
 
 @Injectable()
 export class UsersService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private jwtService: JwtService,
+  ) {}
   async create(createUserDto: CreateUserDto) {
     const { name, email, password } = createUserDto;
 
@@ -63,6 +69,34 @@ export class UsersService {
     }
 
     return user;
+  }
+
+  async findMyProfile(request: Request) {
+    const accessToken = JwtToken(request);
+    const user: UserDto = await this.jwtService.decode(accessToken.trim());
+    const userId: string = user.sub;
+
+    const userData = await this.prisma.users.findUnique({
+      where: {
+        id: Number(userId),
+        deleted_at: null,
+      },
+      select: {
+        name: true,
+        email: true,
+        workspaces: {
+          select: {
+            name: true,
+          },
+        },
+      },
+    });
+
+    if (!userData) {
+      throw new NotFoundError('user', 'id', userId);
+    }
+
+    return userData;
   }
 
   async update(id: number, updateUserDto: UpdateUserDto) {
