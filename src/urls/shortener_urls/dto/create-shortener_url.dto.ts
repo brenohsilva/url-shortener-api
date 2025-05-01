@@ -35,7 +35,6 @@ export class CreateShortenerUrlDto {
   comments?: string | null;
 
   @ApiProperty({example: ['tag1', 'tag2'], description: 'Tags associadas à URL'})
-  @IsString({ each: true })
   tags?: CreateTagBodyDto[] | null;
 
   @IsOptional()

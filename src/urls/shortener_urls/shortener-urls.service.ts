@@ -78,7 +78,12 @@ export class ShortenerUrlsService {
         deleted_at: null,
       },
       include: {
-        tags: true,
+        tags: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
         _count: {
           select: {
             clicks: true,
@@ -123,11 +128,20 @@ export class ShortenerUrlsService {
     });
   }
 
-  async update(id: number, updateShortenerUrlDto: UpdateShortenerUrlDto) {
+  async update(
+    id: number,
+    updateShortenerUrlDto: UpdateShortenerUrlDto,
+    request: Request,
+  ) {
+    const accessToken = JwtToken(request);
+    const user: UserDto = await this.jwtService.decode(accessToken.trim());
+    const userId: string = user.sub;
+
     const url = await this.prisma.shortenerUrls.findUnique({
       where: {
         id,
       },
+      include: { tags: true },
     });
 
     if (!url) {
@@ -139,9 +153,57 @@ export class ShortenerUrlsService {
         id,
       },
       data: {
-        origin_url: updateShortenerUrlDto.originiUrl,
+        origin_url: updateShortenerUrlDto.origin_url,
+        comments: updateShortenerUrlDto.comments || null,
       },
     });
+
+    if (updateShortenerUrlDto.tags) {
+      const tagNames = updateShortenerUrlDto.tags.map((t) => t.name);
+      // Busca todas as tags atuais associadas à URL
+      
+      const currentTagNames = url?.tags.map((t) => t.name) || [];
+
+      // Determina quais tags remover e quais adicionar
+      const tagsToRemove = url.tags.filter(
+        (t) => !tagNames.includes(t.name),
+      );
+      const tagsToAdd = tagNames.filter(
+        (name) => !currentTagNames.includes(name),
+      );
+
+      // Remove as tags não desejadas
+      if (tagsToRemove.length > 0) {
+        await this.prisma.shortenerUrls.update({
+          where: { id },
+          data: {
+            tags: {
+              disconnect: tagsToRemove.map((tag) => ({ id: tag.id })),
+            },
+          },
+        });
+      }
+
+      // Adiciona novas tags (criando se necessário)
+      for (const name of tagsToAdd) {
+        let tag = await this.prisma.tags.findUnique({ where: { name } });
+
+        if (!tag) {
+          tag = await this.prisma.tags.create({
+            data: { name, users_id: Number(userId) },
+          });
+        }
+
+        await this.prisma.shortenerUrls.update({
+          where: { id },
+          data: {
+            tags: {
+              connect: { id: tag.id },
+            },
+          },
+        });
+      }
+    }
 
     return {
       data: updatedUrl,
