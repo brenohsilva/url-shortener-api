@@ -41,6 +41,14 @@ model Workspaces {
   ownerUser     Users           @relation("UserWorkspaces", fields: [owner_id], references: [id])
 }
 
+model Clicks {
+  id               Int      @id @default(autoincrement())
+  shortenerUrls_id Int
+  created_at       DateTime @default(now())
+
+  shortenerUrls ShortenerUrls @relation("ShortenerUrlsClicks", fields: [shortenerUrls_id], references: [id], onDelete: Cascade)
+}
+
 model ShortenerUrls {
   id            Int       @id @default(autoincrement())
   users_id      Int?
@@ -60,13 +68,6 @@ model ShortenerUrls {
   clicks    Clicks[]    @relation("ShortenerUrlsClicks")
 }
 
-model Clicks {
-  id               Int      @id @default(autoincrement())
-  shortenerUrls_id Int
-  created_at       DateTime @default(now())
-
-  shortenerUrls ShortenerUrls @relation("ShortenerUrlsClicks", fields: [shortenerUrls_id], references: [id], onDelete: Cascade)
-}
 
 model Tags {
   id       Int    @id @default(autoincrement())
