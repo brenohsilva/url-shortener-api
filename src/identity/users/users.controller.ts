@@ -7,6 +7,7 @@ import {
   Param,
   Delete,
   UseGuards,
+  Req,
 } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -38,12 +39,20 @@ export class UsersController {
     return this.usersService.findAll();
   }
 
+  @Get('profile')
+  @UseGuards(AuthGuard)
+  findMyProfile(@Req() request: Request) {
+    return this.usersService.findMyProfile(request);
+  }
+
+
   @Get(':id')
   @ApiFindOneUser()
   @UseGuards(AuthGuard)
   findOne(@Param('id') id: string) {
     return this.usersService.findOne(+id);
   }
+
 
   @Patch(':id')
   @ApiUpdateUser()
