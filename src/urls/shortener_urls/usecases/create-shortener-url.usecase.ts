@@ -38,9 +38,13 @@ export class CreateShortenerUrlUseCase {
     const baseUrl = process.env.BASE_URL || 'http://localhost:4000';
     const shortenUrl = `${baseUrl}/${shortCode}`;
 
-    const accessToken = JwtToken(request);
-    const user: UserDto = await this.jwtService.decode(accessToken.trim());
-    const userId = user?.sub ?? null;
+    let userId: string | null = null;
+
+    if (request.headers['authorization']) {
+      const accessToken = JwtToken(request);
+      const user: UserDto = await this.jwtService.decode(accessToken.trim());
+      userId = user?.sub;
+    }
 
     let workspacesId: string | undefined;
 
@@ -70,8 +74,8 @@ export class CreateShortenerUrlUseCase {
       ...(!userId && { expires_at: new Date(Date.now() + 30 * 60 * 1000) }),
     };
 
-    await this.shortenedUrlService.create(newData);
+    const response = await this.shortenedUrlService.create(newData);
 
-    return { shortenUrl: shortenUrl };
+    return response.data;
   }
 }
