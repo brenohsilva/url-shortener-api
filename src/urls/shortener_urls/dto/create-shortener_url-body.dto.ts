@@ -31,5 +31,6 @@ export class ShortenerUrlBodyDto {
 }
 
 export class CreateTagBodyDto {
+  @IsString()
   name: string;
 }
