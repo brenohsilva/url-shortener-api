@@ -3,7 +3,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 
 import { PrismaService } from '../../prisma/prisma.service';
 import { JwtService } from '@nestjs/jwt';
@@ -13,6 +13,9 @@ import { UserDto } from 'src/identity/users/dto/user-response.dto';
 import { CreateShortenerUrlDto } from './dto/create-shortener_url.dto';
 import { UpdateShortenerUrlDto } from './dto/update-shortener_url.dto';
 import { AlreadyExistsError } from 'src/common/errors/already-exists.error';
+
+import { subHours, format, subDays } from 'date-fns';
+import { IQuery } from 'src/interfaces/query-interface';
 
 @Injectable()
 export class ShortenerUrlsService {
@@ -128,6 +131,89 @@ export class ShortenerUrlsService {
     });
   }
 
+  async findUrlsClicks(request: Request, queries: IQuery) {
+    const { groupBy = 'hour', tag } = queries;
+    const accessToken = JwtToken(request);
+    const user: UserDto = await this.jwtService.decode(accessToken.trim());
+    const userId: string = user.sub;
+
+    let dateFrom: Date;
+    let range: string[] = [];
+
+    if (groupBy === 'hour') {
+      dateFrom = subHours(new Date(), 24);
+      range = Array.from({ length: 24 }, (_, i) => {
+        const date = subHours(new Date(), i);
+        return format(date, 'yyyy-MM-dd HH:00:00');
+      }).reverse();
+    } else if (groupBy === 'day') {
+      dateFrom = subDays(new Date(), 7);
+      range = Array.from({ length: 7 }, (_, i) => {
+        const date = subDays(new Date(), i);
+        return format(date, 'yyyy-MM-dd');
+      }).reverse();
+    } else {
+      throw new BadRequestException('Invalid groupBy parameter');
+    }
+
+    const shortenerUrlsFilter: any = {
+      users_id: Number(userId),
+      deleted_at: null,
+    };
+
+    if (tag) {
+      shortenerUrlsFilter.tags = {
+        some: {
+          name: {
+            equals: tag,
+            mode: 'insensitive',
+          },
+        },
+      };
+    }
+
+    const clicks = await this.prisma.clicks.findMany({
+      where: {
+        created_at: {
+          gte: dateFrom,
+        },
+        shortenerUrls: shortenerUrlsFilter,
+      },
+      select: {
+        created_at: true,
+      },
+    });
+
+    const clicksByGroup: { [key: string]: number } = {};
+
+    clicks.forEach((click) => {
+      let key: string;
+      if (groupBy === 'hour') {
+        key = format(click.created_at, 'yyyy-MM-dd HH:00:00');
+      } else {
+        key = format(click.created_at, 'yyyy-MM-dd');
+      }
+      clicksByGroup[key] = (clicksByGroup[key] || 0) + 1;
+    });
+
+    const result = range.map((item) => {
+      let formattedLabel: string = '';
+
+      if (groupBy === 'hour') {
+        formattedLabel = format(new Date(item), 'hh:mmaaa');
+      } else if (groupBy === 'day') {
+        formattedLabel = format(new Date(item), 'yyyy-MM-dd');
+      }
+
+      return {
+        time: formattedLabel,
+        clicks: clicksByGroup[item] || 0,
+      };
+    });
+
+    return result;
+  }
+
   async update(
     id: number,
     updateShortenerUrlDto: UpdateShortenerUrlDto,
@@ -161,13 +247,10 @@ export class ShortenerUrlsService {
     if (updateShortenerUrlDto.tags) {
       const tagNames = updateShortenerUrlDto.tags.map((t) => t.name);
       // Busca todas as tags atuais associadas à URL
-      
       const currentTagNames = url?.tags.map((t) => t.name) || [];
 
       // Determina quais tags remover e quais adicionar
-      const tagsToRemove = url.tags.filter(
-        (t) => !tagNames.includes(t.name),
-      );
+      const tagsToRemove = url.tags.filter((t) => !tagNames.includes(t.name));
       const tagsToAdd = tagNames.filter(
         (name) => !currentTagNames.includes(name),
       );

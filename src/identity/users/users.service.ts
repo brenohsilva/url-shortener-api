@@ -99,6 +99,28 @@ export class UsersService {
     return userData;
   }
 
+  async findUserTags(request: Request) {
+    const accessToken = JwtToken(request);
+    const user: UserDto = await this.jwtService.decode(accessToken.trim());
+    const userId: string = user.sub;
+
+    const tags = await this.prisma.tags.findMany({
+      where: {
+        users_id: Number(userId),
+      },
+      select: {
+        id: true,
+        name: true,
+      },
+    });
+
+    if (!tags) {
+      throw new NotFoundError('user', 'id', userId);
+    }
+
+    return tags;
+  }
+
   async update(id: number, updateUserDto: UpdateUserDto) {
     const { name, email, password } = updateUserDto;
 

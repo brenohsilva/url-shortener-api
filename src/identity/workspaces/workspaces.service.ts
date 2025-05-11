@@ -24,12 +24,12 @@ export class WorkspacesService {
     const user: UserDto = await this.jwtService.decode(accessToken.trim());
     const userId: string = user.sub;
 
-    const { name, slug } = createWorkspaceBodyDto;
+    const { workspace, slug } = createWorkspaceBodyDto;
 
-    const workspace = await this.prismaService.workspaces.findFirst({
+    const workspaceResponse = await this.prismaService.workspaces.findFirst({
       where: {
         owner_id: Number(userId),
-        name,
+        name: workspace,
         OR: [
           {
             owner_id: Number(userId),
@@ -39,14 +39,14 @@ export class WorkspacesService {
       },
     });
 
-    if (workspace) {
-      throw new AlreadyExistsError('workspace', 'name', name || slug);
+    if (workspaceResponse) {
+      throw new AlreadyExistsError('workspace', 'name', workspace || slug);
     }
 
     const createWorkspace: CreateWorkspaceDto = {
       owner_id: Number(userId),
       slug,
-      name,
+      name: workspace,
     };
 
     return await this.prismaService.workspaces.create({
@@ -107,7 +107,7 @@ export class WorkspacesService {
         id,
       },
       data: {
-        name: updateWorkspaceDto.name,
+        name: updateWorkspaceDto.workspace,
       },
     });
   }

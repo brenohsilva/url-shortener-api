@@ -3,7 +3,7 @@ import { IsNotEmpty, IsString } from 'class-validator';
 export class CreateWorkspaceBodyDto {
   @IsString()
   @IsNotEmpty()
-  name: string;
+  workspace: string;
   @IsString()
   @IsNotEmpty()
   slug: string;

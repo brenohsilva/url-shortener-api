@@ -45,6 +45,11 @@ export class UsersController {
     return this.usersService.findMyProfile(request);
   }
 
+  @Get('tags')
+  @UseGuards(AuthGuard)
+  findMyTags(@Req() request: Request) {
+    return this.usersService.findUserTags(request);
+  }
 
   @Get(':id')
   @ApiFindOneUser()
@@ -52,7 +57,6 @@ export class UsersController {
   findOne(@Param('id') id: string) {
     return this.usersService.findOne(+id);
   }
-
 
   @Patch(':id')
   @ApiUpdateUser()
