@@ -40,8 +40,8 @@ export class ShortenedUrlsController {
   @Get()
   @ApiFindAllShortenedUrls()
   @UseGuards(AuthGuard)
-  findAll(@Req() request: Request) {
-    return this.shortenerUrlsService.findAll(request);
+  findAll(@Req() request: Request, @Query() queries: IQuery) {
+    return this.shortenerUrlsService.findAll(request, queries);
   }
 
   @Get('clicks')
@@ -50,14 +50,18 @@ export class ShortenedUrlsController {
     return this.shortenerUrlsService.findUrlsClicks(request, queries);
   }
 
+  @Get('tags')
+  @UseGuards(AuthGuard)
+  findTags(@Req() request: Request) {
+    return this.shortenerUrlsService.findTags(request);
+  }
+
   @Get(':id')
   @ApiFindOneShortenedUrl()
   @UseGuards(AuthGuard)
   findOne(@Param('id') id: string, @Req() request: Request) {
     return this.shortenerUrlsService.findOne(+id, request);
   }
-
-  
 
   @Patch(':id')
   @ApiUpdateShortenedUrl()

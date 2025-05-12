@@ -70,16 +70,32 @@ export class ShortenerUrlsService {
     return { data: url };
   }
 
-  async findAll(request: Request) {
+  async findAll(request: Request, queries: IQuery) {
+    const { tag } = queries;
     const accessToken = JwtToken(request);
     const user: UserDto = await this.jwtService.decode(accessToken.trim());
     const userId: string = user.sub;
 
+    const shortenerUrlsFilter: any = {
+      users_id: Number(userId),
+      deleted_at: null,
+    };
+    
+    if (tag) {
+      shortenerUrlsFilter.tags = {
+        some: {
+          name: {
+            equals: tag, 
+          },
+        },
+      };
+    }
+
     const urls = await this.prisma.shortenerUrls.findMany({
       where: {
-        users_id: Number(userId),
-        deleted_at: null,
+        ...shortenerUrlsFilter,
       },
+
       include: {
         tags: {
           select: {
@@ -212,6 +228,20 @@ export class ShortenerUrlsService {
     });
 
     return result;
+  }
+
+  async findTags(request: Request) {
+    const accessToken = JwtToken(request);
+    const user: UserDto = await this.jwtService.decode(accessToken.trim());
+    const userId: string = user.sub;
+
+    const tags = await this.prisma.tags.findMany({
+      where: {
+        users_id: Number(userId),
+      },
+    });
+
+    return { data: tags };
   }
 
   async update(

@@ -1,4 +1,4 @@
 export interface IQuery {
-  tag: string;
-  groupBy: string;
+  tag?: string;
+  groupBy?: string;
 }
