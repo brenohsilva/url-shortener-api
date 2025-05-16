@@ -1,4 +1,10 @@
-import { PartialType } from '@nestjs/swagger';
-import { CreateWorkspaceBodyDto } from './create-workspace-body.dto';
+import { IsOptional, IsString } from 'class-validator';
 
-export class UpdateWorkspaceDto extends PartialType(CreateWorkspaceBodyDto) {}
+export class UpdateWorkspaceDto {
+  @IsOptional()
+  @IsString()
+  name?: string;
+  @IsOptional()
+  @IsString()
+  slug?: string;
+}

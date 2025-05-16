@@ -86,7 +86,9 @@ export class UsersService {
         email: true,
         workspaces: {
           select: {
+            id: true,
             name: true,
+            slug: true
           },
         },
       },

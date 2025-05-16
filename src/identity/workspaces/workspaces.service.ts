@@ -99,16 +99,20 @@ export class WorkspacesService {
     });
 
     if (!workspace) {
-      throw new NotFoundError('workspace', 'id', id);
+      throw new NotFoundError('workspace', 'user id', userId);
     }
 
-    return this.prismaService.workspaces.update({
+    const { name, slug } = updateWorkspaceDto;
+
+    const data: UpdateWorkspaceDto = {};
+    if (name) data.name = name;
+    if (slug) data.slug = slug;
+
+    return await this.prismaService.workspaces.update({
       where: {
         id,
       },
-      data: {
-        name: updateWorkspaceDto.workspace,
-      },
+      data,
     });
   }
 
