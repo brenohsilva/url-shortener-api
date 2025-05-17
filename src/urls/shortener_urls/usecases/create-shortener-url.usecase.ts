@@ -51,8 +51,8 @@ export class CreateShortenerUrlUseCase {
     if (userId) {
       const workspace = await this.prismaService.workspaces.findFirst({
         where: {
-          slug: 'bcprodutos',
           deleted_at: null,
+          owner_id: Number(userId),
         },
       });
 

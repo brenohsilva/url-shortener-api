@@ -88,7 +88,7 @@ export class UsersService {
           select: {
             id: true,
             name: true,
-            slug: true
+            slug: true,
           },
         },
       },
@@ -164,12 +164,17 @@ export class UsersService {
   }
 
   async remove(id: number) {
-    const deletedDate: Date = new Date();
+    const deletedDate = new Date();
 
     const user = await this.prisma.users.findFirst({
       where: {
         id,
         deleted_at: null,
+      },
+      include: {
+        workspaces: true,
+        shortenerUrls: true,
+        tags: true,
       },
     });
 
@@ -177,17 +182,50 @@ export class UsersService {
       throw new NotFoundError('user', 'id', id);
     }
 
-    const deletedUser = await this.prisma.users.update({
+    await this.prisma.shortenerUrls.updateMany({
       where: {
-        id,
+        users_id: id,
       },
       data: {
         deleted_at: deletedDate,
       },
     });
 
-    if (deletedUser) {
-      return { message: 'User deleted successfully' };
+    const workspaceIds = user.workspaces.map((ws) => ws.id);
+
+    await this.prisma.workspaces.updateMany({
+      where: {
+        owner_id: id,
+      },
+      data: {
+        deleted_at: deletedDate,
+      },
+    });
+
+    if (workspaceIds.length > 0) {
+      await this.prisma.shortenerUrls.updateMany({
+        where: {
+          workspaces_id: { in: workspaceIds },
+        },
+        data: {
+          deleted_at: deletedDate,
+        },
+      });
     }
+
+    await this.prisma.tags.deleteMany({
+      where: {
+        users_id: id,
+      },
+    });
+
+    await this.prisma.users.update({
+      where: { id },
+      data: {
+        deleted_at: deletedDate,
+      },
+    });
+
+    return { message: 'User and related data deleted successfully' };
   }
 }
