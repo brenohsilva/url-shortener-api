@@ -15,53 +15,97 @@ Esta é uma API de encurtamento de URLs desenvolvida com NestJS, Prisma ORM e My
 
 ### Modelos do Banco de Dados
 
-O banco de dados possui duas tabelas principais:
+O banco de dados possui várias tabelas que representam os principais recursos da aplicação:
 
 - **Users**: Armazena informações dos usuários.
-- **Shortened_urls**: Armazena as URLs encurtadas e suas informações.
+- **ShortenedUrls**: Armazena as URLs encurtadas e suas informações.
+- **Workspaces**: Representa os espaços de trabalho criados pelos usuários.
+- **Clicks**: Armazena os cliques realizados nas URLs encurtadas.
+- **Tags**: Armazena tags personalizadas que podem ser associadas às URLs.
 
 ```prisma
 model Users {
-  id         String           @id @default(uuid())
+  id         Int       @id @default(autoincrement())
   name       String
-  email      String           @unique
+  email      String    @unique
   password   String
-  created_at DateTime         @default(now())
-  updated_at DateTime         @updatedAt
+  created_at DateTime  @default(now())
+  updated_at DateTime  @default(now())
   deleted_at DateTime?
-  urls       Shortened_urls[]
+
+  shortenerUrls ShortenerUrls[] @relation("UserShortenerUrls")
+  workspaces    Workspaces[]    @relation("UserWorkspaces")
+  tags          Tags[]          @relation("UserTags")
 }
 
-model Shortened_urls {
-  id           String    @id @default(uuid())
-  users_id     String?
-  short_code   String    @unique
-  original_url String
-  shorten_url  String
-  clicks       Int       @default(0)
-  created_at   DateTime  @default(now())
-  updated_at   DateTime  @updatedAt
-  deleted_at   DateTime?
+model Workspaces {
+  id         String    @id @default(uuid())
+  name       String
+  slug       String    @unique
+  owner_id   Int
+  created_at DateTime  @default(now())
+  update_at  DateTime  @default(now())
+  deleted_at DateTime?
 
-  user Users? @relation(fields: [users_id], references: [id])
+  shortenerUrls ShortenerUrls[] @relation("WorkspaceShortenerUrls")
+  ownerUser     Users           @relation("UserWorkspaces", fields: [owner_id], references: [id])
 }
+
+model ShortenerUrls {
+  id            Int       @id @default(autoincrement())
+  users_id      Int?
+  workspaces_id String?
+  short_code    String    @unique
+  origin_url    String
+  shorten_url   String
+  comments      String?
+  created_at    DateTime  @default(now())
+  update_at     DateTime  @default(now())
+  deleted_at    DateTime?
+  expires_at    DateTime?
+
+  user      Users?      @relation("UserShortenerUrls", fields: [users_id], references: [id], onDelete: Cascade)
+  workspace Workspaces? @relation("WorkspaceShortenerUrls", fields: [workspaces_id], references: [id], onDelete: Cascade)
+  tags      Tags[]      @relation("ShortenerUrlsTags")
+  clicks    Clicks[]    @relation("ShortenerUrlsClicks")
+}
+
+model Clicks {
+  id               Int      @id @default(autoincrement())
+  shortenerUrls_id Int
+  created_at       DateTime @default(now())
+
+  shortenerUrls ShortenerUrls @relation("ShortenerUrlsClicks", fields: [shortenerUrls_id], references: [id], onDelete: Cascade)
+}
+
+model Tags {
+  id       Int    @id @default(autoincrement())
+  users_id Int
+  name     String @unique
+
+  Users         Users?          @relation("UserTags", fields: [users_id], references: [id])
+  shortenerUrls ShortenerUrls[] @relation("ShortenerUrlsTags")
+}
+
 ```
 
 ### Rotas da API
 
-A API possui as seguintes rotas para gerenciamento de URLs encurtadas:
+A API possui as seguintes rotas para gerenciamento das Urls:
 
-- **POST /shortened-urls**: Cria uma nova URL encurtada.
+- **POST /shortened-urls**: Cria uma nova URL encurtada (Pode ser chamada com e sem autenticação)
 
 - **GET /shortened-urls/all**: Lista todas as URLs encurtadas (requer autenticação).
 
-- **GET /shortened-urls/:id **: Obtém detalhes de uma URL encurtada específica (requer autenticação).
+- **GET /shortened-urls/:id**: Obtém detalhes de uma URL encurtada específica (requer autenticação).
 
-- **PATCH /shortened-urls/:id **: Atualiza uma URL encurtada (requer autenticação).
+- **PATCH /shortened-urls/:id**: Atualiza uma URL encurtada (requer autenticação).
 
-- **DELETE /shortened-urls/:id **: Remove uma URL encurtada (requer autenticação).
+- **DELETE /shortened-urls/:id**: Remove uma URL encurtada (requer autenticação).
 
-- **GET /:shortCode **: Redireciona para a URL original associada ao código curto.
+- **GET /:shortCode**: Redireciona para a URL original associada ao código curto.
+
+Há outras rotas referentes a usuários e workspaces onde você pode encontrar na documentação do swagger e do postman.
 
 ---
 
@@ -69,7 +113,11 @@ A API possui as seguintes rotas para gerenciamento de URLs encurtadas:
 
 Algumas rotas requerem autenticação via `AuthGuard`. Certifique-se de fornecer um token válido no cabeçalho da requisição.
 
-O Token valido pode ser obtido através do login e senha de um usuário existente. Voce pode criar um usuário através da rota POST /users via swagger.
+O Token valido pode ser obtido através do login e senha de um usuário existente. 
+
+- **POST /auth/login**: Faz login na aplicação, retornando um access token.
+
+Você pode criar um usuário através da rota **POST /users** via swagger ou postman.
 
 No ambiente online já está disponivel as seguintes credenciais do usuário:
 
@@ -83,10 +131,6 @@ Password: 123456
 
 A Api está rodando online no endereço: https://url-shortener-api-gap8.onrender.com
 
-Voce pode consultar a documentação via swagger do servidor online pelo endereço:
-
-https://url-shortener-api-gap8.onrender.com/docs
-
 ---
 
 ### Documentação da API
@@ -94,6 +138,12 @@ https://url-shortener-api-gap8.onrender.com/docs
 A documentação da API está disponível via Swagger. Para acessar, inicie o servidor localmente e navegue até:
 
 http://localhost:3000/docs
+
+Voce pode consultar a documentação via swagger do servidor online pelo endereço:
+
+https://url-shortener-api-gap8.onrender.com/docs
+
+---
 
 ## Configuração do Projeto
 
@@ -157,22 +207,15 @@ Para executar os testes, utilize o comando:
 
 npm run test
 
-## Contribuição
-
-Contribuições são bem-vindas! Sinta-se à vontade para abrir issues e pull requests.
-
-## Licença
-
-Este projeto está licenciado sob a [MIT License](https://chat.deepseek.com/a/chat/s/LICENSE).
 
 ### Explicação do README
 
 1. **Título e Descrição**: Introdução ao projeto e suas funcionalidades.
 2. **Tecnologias Utilizadas**: Lista das principais tecnologias usadas.
 3. **Estrutura do Projeto**: Descrição dos modelos do banco de dados e rotas da API.
-4. **Configuração do Projeto**: Passos para instalação e configuração do ambiente.
-5. **Uso**: Como usar a API após a configuração.
-6. **Testes**: Como executar os testes.
-7. **Deploy**: Endereço da aplicação online.
-8. **Contribuição**: Informações sobre como contribuir para o projeto.
-9. **Licença**: Informações sobre a licença do projeto.
+4.  **Deploy**: Endereço da aplicação online.
+5. **Configuração do Projeto**: Passos para instalação e configuração do ambiente.
+6. **Uso**: Como usar a API após a configuração.
+7. **Testes**: Como executar os testes.
+
+
